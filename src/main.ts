@@ -105,7 +105,7 @@ async function bootstrap() {
     next();
   });
 
-  await app.listen(port);
+  await app.listen(port, '0.0.0.0');
   logger.log(`Project Sanchay backend successfully running at http://localhost:${port}/api`);
   logger.log(`Swagger documentation available at http://localhost:${port}/api/docs`);
 }

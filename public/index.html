@@ -1,26 +1,31 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Project Sanchay — Digital E-Waste Bridge</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220%22%20%220%22%20%22100%22%20%22100%22><text y=%22.9em%22 font-size=%2290%22>♻️</text></svg>">
+  <title>Project Sanchay — Digital E-Waste Bridge & Developer Console</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220%22%20%220%22%20%22100%22%20%22100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
   
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
+      darkMode: 'class',
       theme: {
         extend: {
           colors: {
-            brand: {
-              50: '#f0fdfa',
-              100: '#ccfbf1',
-              500: '#14b8a6',
-              600: '#0d9488',
-              700: '#0f766e',
-              800: '#115e59',
-              900: '#134e4a',
+            app: {
+              950: '#05070A',
+              900: '#080B0F',
+              850: '#0C1017',
+              800: '#0F141C',
+              750: '#161D27',
+              700: '#1F2937',
+            },
+            emerald: {
+              400: '#00F090',
+              500: '#05DF72',
+              600: '#059669',
             }
           }
         }
@@ -28,703 +33,773 @@
     }
   </script>
 
-  <!-- FontAwesome Icons -->
+  <!-- FontAwesome Icons & Stylesheet -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- Custom Styles -->
   <link rel="stylesheet" href="/css/style.css">
 </head>
-<body class="bg-slate-50 text-slate-800 antialiased flex flex-col min-h-screen">
+<body class="bg-[#080B0F] text-slate-100 antialiased flex min-h-screen matrix-grid selection:bg-[#00F090] selection:text-black">
 
   <!-- Toast Notification Container -->
   <div id="toast-container"></div>
 
-  <!-- Quick Demo Switcher Top Bar -->
-  <div class="bg-slate-900 text-slate-200 text-xs py-2 px-4 border-b border-slate-800 flex flex-wrap items-center justify-between gap-2 z-50">
-    <div class="flex items-center gap-2">
-      <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> LIVE BACKEND CONNECTED
-      </span>
-      <span class="hidden sm:inline text-slate-400">⚡ University Demo Switcher:</span>
-    </div>
-    <div class="flex items-center flex-wrap gap-1.5">
-      <span class="text-slate-400 text-[11px] mr-1 hidden md:inline">Instant Switch:</span>
-      <button onclick="app.quickLogin('collector@sanchay.io')" class="px-2.5 py-1 rounded bg-amber-900/40 hover:bg-amber-800/60 text-amber-200 border border-amber-700/50 transition">
-        <i class="fa-solid fa-truck-pickup mr-1"></i> Collector (Kabadiwala)
-      </button>
-      <button onclick="app.quickLogin('recycler@sanchay.io')" class="px-2.5 py-1 rounded bg-teal-900/40 hover:bg-teal-800/60 text-teal-200 border border-teal-700/50 transition">
-        <i class="fa-solid fa-recycle mr-1"></i> Approved Recycler
-      </button>
-      <button onclick="app.quickLogin('brand@sanchay.io')" class="px-2.5 py-1 rounded bg-indigo-900/40 hover:bg-indigo-800/60 text-indigo-200 border border-indigo-700/50 transition">
-        <i class="fa-solid fa-building mr-1"></i> Electronics Brand
-      </button>
-      <button onclick="app.quickLogin('admin@sanchay.io')" class="px-2.5 py-1 rounded bg-rose-900/40 hover:bg-rose-800/60 text-rose-200 border border-rose-700/50 transition">
-        <i class="fa-solid fa-shield-halved mr-1"></i> Administrator
-      </button>
-      <a href="/api/docs" target="_blank" class="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition ml-2">
-        <i class="fa-solid fa-book mr-1"></i> Swagger Docs
-      </a>
-    </div>
-  </div>
-
-  <!-- Main Navigation Header -->
-  <header class="glass-header sticky top-0 z-40">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex items-center justify-between h-16">
-        
-        <!-- Logo & Branding -->
-        <div class="flex items-center gap-3 cursor-pointer" onclick="app.navigate('landing')">
-          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-600 to-teal-800 flex items-center justify-center text-white shadow-md shadow-brand-600/20">
-            <i class="fa-solid fa-recycle text-xl"></i>
-          </div>
-          <div>
-            <div class="flex items-center gap-2">
-              <span class="text-xl font-bold tracking-tight text-slate-900">SANCHAY</span>
-              <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-teal-100 text-teal-800 border border-teal-200">Digital Bridge</span>
-            </div>
-            <p class="text-[11px] text-slate-500 font-medium hidden sm:block">Connecting Informal Collectors to Formal EPR Markets</p>
-          </div>
+  <!-- ================= 1. PERSISTENT APP SIDEBAR ================= -->
+  <aside class="w-64 bg-[#0C1017] border-r border-white/10 hidden md:flex flex-col justify-between shrink-0 h-screen sticky top-0 px-4 py-5 select-none z-30">
+    <div class="flex flex-col space-y-6">
+      
+      <!-- Brand Logo & Platform Status -->
+      <div onclick="app.navigate('landing')" class="flex items-center gap-3 px-2 cursor-pointer group">
+        <div class="w-8 h-8 rounded-lg bg-[#0F141C] border border-[#00F090]/40 flex items-center justify-center text-[#00F090] shadow-[0_0_15px_rgba(0,240,144,0.25)] group-hover:scale-105 transition">
+          <i class="fa-solid fa-bolt text-xs animate-glow"></i>
         </div>
-
-        <!-- Dynamic Role Navigation -->
-        <nav id="nav-links" class="hidden md:flex items-center gap-1 font-medium text-sm">
-          <!-- Populated dynamically based on role -->
-        </nav>
-
-        <!-- User Action Area -->
-        <div class="flex items-center gap-3">
-          <button onclick="app.showPublicVerifyModal()" class="px-3 py-1.5 rounded-lg text-sm font-medium text-slate-600 hover:text-brand-700 hover:bg-slate-100 transition hidden sm:flex items-center gap-1.5">
-            <i class="fa-solid fa-qrcode text-brand-600"></i> Verify Manifest
-          </button>
-
-          <div id="auth-buttons" class="flex items-center gap-2">
-            <button onclick="app.openAuthModal('login')" class="px-3.5 py-1.5 rounded-lg text-sm font-semibold text-slate-700 hover:bg-slate-100 transition">
-              Log in
-            </button>
-            <button onclick="app.openAuthModal('register')" class="px-4 py-1.5 rounded-lg text-sm font-semibold text-white bg-brand-700 hover:bg-brand-800 shadow-sm transition">
-              Register
-            </button>
-          </div>
-
-          <div id="user-menu" class="hidden flex items-center gap-3">
-            <div class="text-right">
-              <div id="user-fullname" class="text-sm font-bold text-slate-900 leading-tight">User Name</div>
-              <div id="user-role-badge" class="text-[11px] font-semibold text-slate-500">ROLE</div>
-            </div>
-            <button onclick="app.logout()" title="Log out" class="w-9 h-9 rounded-lg bg-slate-100 hover:bg-rose-50 text-slate-600 hover:text-rose-600 flex items-center justify-center transition border border-slate-200">
-              <i class="fa-solid fa-arrow-right-from-bracket"></i>
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </header>
-
-  <!-- Notification Banner: Compliance Distinction -->
-  <aside aria-label="Regulatory Notice" class="bg-amber-50 border-b border-amber-200 px-4 py-2 text-xs text-amber-900 flex items-center justify-center gap-2">
-    <i class="fa-solid fa-triangle-exclamation text-amber-600 flex-shrink-0"></i>
-    <span><strong>Mandatory Regulatory Notice:</strong> Sanchay digital manifests record verified custody handovers. They do not constitute official CPCB-issued EPR credit certificates.</span>
-  </aside>
-
-  <!-- MAIN APPLICATION CONTENT CONTAINER -->
-  <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
-
-    <!-- 1. LANDING & OVERVIEW VIEW -->
-    <section id="view-landing" class="view-panel">
-      <!-- Hero Section -->
-      <div class="relative overflow-hidden rounded-3xl hero-gradient text-white p-8 md:p-12 mb-8 shadow-xl">
-        <div class="relative z-10 max-w-3xl">
-          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-white/10 text-teal-200 border border-white/20 mb-4 backdrop-blur-sm">
-            <i class="fa-solid fa-leaf"></i> Asset-Light Digital Intermediary for India
-          </div>
-          <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight leading-tight mb-4">
-            Bridging India's Informal Waste Economy to Formal EPR Markets
-          </h1>
-          <p class="text-teal-100 text-base md:text-lg mb-8 leading-relaxed">
-            Project Sanchay empowers informal electronic waste aggregators (kabadiwalas) to list materials, enables certified recyclers to accept handovers, and creates tamper-evident digital manifests that provide electronics brands with traceable ESG supply-chain transparency.
-          </p>
-
-          <div class="flex flex-wrap items-center gap-4">
-            <button onclick="app.quickLogin('collector@sanchay.io')" class="px-5 py-3 rounded-xl bg-white text-teal-900 font-bold hover:bg-teal-50 transition shadow-lg shadow-black/10 flex items-center gap-2">
-              <i class="fa-solid fa-plus-circle text-brand-700"></i> Start as Collector
-            </button>
-            <button onclick="app.quickLogin('recycler@sanchay.io')" class="px-5 py-3 rounded-xl bg-teal-800/80 hover:bg-teal-800 text-white font-bold border border-teal-600/50 transition flex items-center gap-2">
-              <i class="fa-solid fa-store"></i> Browse Marketplace
-            </button>
-            <button onclick="app.quickLogin('brand@sanchay.io')" class="px-5 py-3 rounded-xl bg-slate-900/60 hover:bg-slate-900 text-white font-bold border border-slate-700 transition flex items-center gap-2">
-              <i class="fa-solid fa-chart-pie"></i> Brand Analytics
-            </button>
-          </div>
-        </div>
-
-        <!-- Decorative background shapes -->
-        <div class="absolute -right-12 -bottom-12 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl pointer-events-none"></div>
-      </div>
-
-      <!-- Chain of Custody Infographic Cards -->
-      <div class="mb-12">
-        <h2 class="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
-          <i class="fa-solid fa-diagram-project text-brand-700"></i> Sanchay 5-Stage Chain of Custody Workflow
-        </h2>
-        <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
-          <div class="bg-white p-5 rounded-2xl border border-slate-200 hover-card-lift">
-            <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center font-bold text-lg mb-3">1</div>
-            <h3 class="font-bold text-slate-900 text-sm mb-1">Collector Lists</h3>
-            <p class="text-xs text-slate-500">Kabadiwala lists collected circuit boards, phones, or components with asking price and location.</p>
-          </div>
-          <div class="bg-white p-5 rounded-2xl border border-slate-200 hover-card-lift">
-            <div class="w-10 h-10 rounded-xl bg-teal-50 text-teal-700 flex items-center justify-center font-bold text-lg mb-3">2</div>
-            <h3 class="font-bold text-slate-900 text-sm mb-1">Recycler Reserves</h3>
-            <p class="text-xs text-slate-500">Authorized recycler finds listing in marketplace and reserves it through atomic database transaction.</p>
-          </div>
-          <div class="bg-white p-5 rounded-2xl border border-slate-200 hover-card-lift">
-            <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center font-bold text-lg mb-3">3</div>
-            <h3 class="font-bold text-slate-900 text-sm mb-1">Physical Weighing</h3>
-            <p class="text-xs text-slate-500">Waste is weighed on calibrated scale; actual weight recorded and scale slip photos uploaded.</p>
-          </div>
-          <div class="bg-white p-5 rounded-2xl border border-slate-200 hover-card-lift">
-            <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-700 flex items-center justify-center font-bold text-lg mb-3">4</div>
-            <h3 class="font-bold text-slate-900 text-sm mb-1">Dual Confirmation</h3>
-            <p class="text-xs text-slate-500">Both parties digitally sign the handover. System automatically issues Digital Manifest with QR.</p>
-          </div>
-          <div class="bg-white p-5 rounded-2xl border border-slate-200 hover-card-lift">
-            <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center font-bold text-lg mb-3">5</div>
-            <h3 class="font-bold text-slate-900 text-sm mb-1">Brand Dashboard</h3>
-            <p class="text-xs text-slate-500">Electronics OEMs view verified downstream volumes, review manifests, and export audit data.</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Quick Role Login Selector Cards -->
-      <div>
-        <h2 class="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
-          <i class="fa-solid fa-users text-brand-700"></i> Select Your Platform Role to Explore
-        </h2>
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <!-- Collector Card -->
-          <div class="bg-white p-6 rounded-2xl border border-slate-200 hover-card-lift flex flex-col justify-between">
-            <div>
-              <div class="w-12 h-12 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center text-xl mb-4">
-                <i class="fa-solid fa-truck-pickup"></i>
-              </div>
-              <h3 class="font-bold text-slate-900 text-lg mb-1">Informal Collector</h3>
-              <p class="text-xs font-semibold text-amber-700 mb-3">Ramesh Kumar (kabadiwala)</p>
-              <p class="text-xs text-slate-600 mb-4">List segregated e-waste, find buyers paying fair market rates, track physical handovers, and view gross earnings.</p>
-            </div>
-            <button onclick="app.quickLogin('collector@sanchay.io')" class="w-full py-2.5 px-4 rounded-xl font-bold text-sm bg-amber-600 hover:bg-amber-700 text-white transition flex items-center justify-center gap-2">
-              Launch Collector Portal <i class="fa-solid fa-arrow-right text-xs"></i>
-            </button>
-          </div>
-
-          <!-- Recycler Card -->
-          <div class="bg-white p-6 rounded-2xl border border-slate-200 hover-card-lift flex flex-col justify-between">
-            <div>
-              <div class="w-12 h-12 rounded-xl bg-teal-100 text-teal-800 flex items-center justify-center text-xl mb-4">
-                <i class="fa-solid fa-recycle"></i>
-              </div>
-              <h3 class="font-bold text-slate-900 text-lg mb-1">Authorized Recycler</h3>
-              <p class="text-xs font-semibold text-teal-700 mb-3">Vikram Mehta (GreenCycle Tech)</p>
-              <p class="text-xs text-slate-600 mb-4">Discover verified e-waste sources, reserve listings, record calibrated weights, upload evidence, and issue digital manifests.</p>
-            </div>
-            <button onclick="app.quickLogin('recycler@sanchay.io')" class="w-full py-2.5 px-4 rounded-xl font-bold text-sm bg-teal-700 hover:bg-teal-800 text-white transition flex items-center justify-center gap-2">
-              Launch Recycler Portal <i class="fa-solid fa-arrow-right text-xs"></i>
-            </button>
-          </div>
-
-          <!-- Brand Card -->
-          <div class="bg-white p-6 rounded-2xl border border-slate-200 hover-card-lift flex flex-col justify-between">
-            <div>
-              <div class="w-12 h-12 rounded-xl bg-indigo-100 text-indigo-800 flex items-center justify-center text-xl mb-4">
-                <i class="fa-solid fa-building"></i>
-              </div>
-              <h3 class="font-bold text-slate-900 text-lg mb-1">Electronics Brand</h3>
-              <p class="text-xs font-semibold text-indigo-700 mb-3">Ananya Sharma (NovaTech India)</p>
-              <p class="text-xs text-slate-600 mb-4">Access auditable chain-of-custody data, track category diversion metrics, download PDF manifests, and export ESG reports.</p>
-            </div>
-            <button onclick="app.quickLogin('brand@sanchay.io')" class="w-full py-2.5 px-4 rounded-xl font-bold text-sm bg-indigo-700 hover:bg-indigo-800 text-white transition flex items-center justify-center gap-2">
-              Launch Brand Dashboard <i class="fa-solid fa-arrow-right text-xs"></i>
-            </button>
-          </div>
-
-          <!-- Admin Card -->
-          <div class="bg-white p-6 rounded-2xl border border-slate-200 hover-card-lift flex flex-col justify-between">
-            <div>
-              <div class="w-12 h-12 rounded-xl bg-rose-100 text-rose-800 flex items-center justify-center text-xl mb-4">
-                <i class="fa-solid fa-shield-halved"></i>
-              </div>
-              <h3 class="font-bold text-slate-900 text-lg mb-1">Administrator</h3>
-              <p class="text-xs font-semibold text-rose-700 mb-3">Sanchay Operations</p>
-              <p class="text-xs text-slate-600 mb-4">Review recycler applications, assign manifest access to brands, monitor platform fees, and inspect immutable audit logs.</p>
-            </div>
-            <button onclick="app.quickLogin('admin@sanchay.io')" class="w-full py-2.5 px-4 rounded-xl font-bold text-sm bg-rose-700 hover:bg-rose-800 text-white transition flex items-center justify-center gap-2">
-              Launch Admin Center <i class="fa-solid fa-arrow-right text-xs"></i>
-            </button>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- 2. COLLECTOR PORTAL VIEW -->
-    <section id="view-collector" class="view-panel hidden">
-      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
         <div>
-          <h1 class="text-2xl font-bold text-slate-900">Collector Dashboard</h1>
-          <p class="text-sm text-slate-500">Manage your electronic waste inventory, listings, and track physical handovers</p>
+          <div class="flex items-center gap-1.5">
+            <span class="text-sm font-black tracking-wider text-white font-mono">SANCHAY</span>
+            <span class="text-[9px] uppercase font-bold tracking-widest px-1.5 py-0.2 rounded bg-[#00F090]/10 text-[#00F090] border border-[#00F090]/30 font-mono">
+              V1.0
+            </span>
+          </div>
+          <p class="text-[10px] text-slate-400 font-mono flex items-center gap-1 mt-0.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-[#00F090] animate-pulse"></span> E-Waste Protocol
+          </p>
         </div>
-        <button onclick="app.openCreateListingModal()" class="px-4 py-2.5 rounded-xl font-bold text-sm text-white bg-brand-700 hover:bg-brand-800 shadow-md shadow-brand-700/20 flex items-center gap-2 transition">
-          <i class="fa-solid fa-plus"></i> List New E-Waste
+      </div>
+
+      <!-- Section Title -->
+      <div class="px-2">
+        <span class="text-[10px] font-mono font-bold uppercase tracking-widest text-slate-400">
+          NAVIGATION
+        </span>
+      </div>
+
+      <!-- Navigation Links -->
+      <nav class="space-y-1 font-mono text-xs">
+        <button id="sidebar-nav-landing" onclick="app.navigate('landing')" class="w-full sidebar-nav-item active">
+          <i class="fa-solid fa-chart-line w-4 text-center"></i>
+          <span>Command Center</span>
+        </button>
+
+        <button id="sidebar-nav-collector" onclick="app.navigate('collector')" class="w-full sidebar-nav-item">
+          <i class="fa-solid fa-boxes-stacked w-4 text-center text-amber-400"></i>
+          <span>Collector Portal</span>
+        </button>
+
+        <button id="sidebar-nav-recycler" onclick="app.navigate('recycler')" class="w-full sidebar-nav-item">
+          <i class="fa-solid fa-recycle w-4 text-center text-[#00F090]"></i>
+          <span>Recycler Facility</span>
+        </button>
+
+        <button id="sidebar-nav-brand" onclick="app.navigate('brand')" class="w-full sidebar-nav-item">
+          <i class="fa-solid fa-chart-pie w-4 text-center text-sky-400"></i>
+          <span>Brand Analytics</span>
+        </button>
+
+        <button id="sidebar-nav-admin" onclick="app.navigate('admin')" class="w-full sidebar-nav-item">
+          <i class="fa-solid fa-shield-halved w-4 text-center text-rose-400"></i>
+          <span>Admin Ledger</span>
+        </button>
+
+        <button id="sidebar-nav-verify" onclick="app.navigate('verify')" class="w-full sidebar-nav-item">
+          <i class="fa-solid fa-qrcode w-4 text-center text-[#00F090]"></i>
+          <span>Verify Manifest</span>
+        </button>
+      </nav>
+
+      <!-- Role Segment Controls -->
+      <div class="pt-4 border-t border-white/10 px-2 space-y-2">
+        <span class="text-[10px] font-mono font-bold uppercase tracking-widest text-slate-400 block">
+          SWITCH ACTIVE ROLE
+        </span>
+        <div class="grid grid-cols-2 gap-1.5 font-mono text-[11px]">
+          <button onclick="app.quickLogin('collector@sanchay.io')" id="role-btn-collector" class="py-1.5 px-2 rounded-lg bg-white/5 hover:bg-white/10 text-amber-400 border border-white/5 transition flex items-center gap-1.5">
+            <i class="fa-solid fa-truck-pickup text-[10px]"></i> Collector
+          </button>
+          <button onclick="app.quickLogin('recycler@sanchay.io')" id="role-btn-recycler" class="py-1.5 px-2 rounded-lg bg-white/5 hover:bg-white/10 text-[#00F090] border border-white/5 transition flex items-center gap-1.5">
+            <i class="fa-solid fa-recycle text-[10px]"></i> Recycler
+          </button>
+          <button onclick="app.quickLogin('brand@sanchay.io')" id="role-btn-brand" class="py-1.5 px-2 rounded-lg bg-white/5 hover:bg-white/10 text-sky-400 border border-white/5 transition flex items-center gap-1.5">
+            <i class="fa-solid fa-building text-[10px]"></i> Brand
+          </button>
+          <button onclick="app.quickLogin('admin@sanchay.io')" id="role-btn-admin" class="py-1.5 px-2 rounded-lg bg-white/5 hover:bg-white/10 text-rose-400 border border-white/5 transition flex items-center gap-1.5">
+            <i class="fa-solid fa-shield-halved text-[10px]"></i> Admin
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sidebar Footer / Identity -->
+    <div class="pt-4 border-t border-white/10 space-y-3 font-mono text-xs">
+      <div class="flex items-center justify-between p-2 rounded-xl bg-white/5 border border-white/5">
+        <div class="flex items-center gap-2">
+          <div class="w-6 h-6 rounded-full bg-[#00F090]/20 text-[#00F090] flex items-center justify-center text-xs font-bold font-mono">
+            S
+          </div>
+          <div class="overflow-hidden">
+            <p id="user-fullname" class="text-xs font-bold text-white truncate leading-tight">Ramesh Kumar</p>
+            <p id="user-role-badge" class="text-[9px] text-[#00F090] truncate font-bold">COLLECTOR</p>
+          </div>
+        </div>
+        <button onclick="app.logout()" title="Sign Out" class="text-slate-400 hover:text-rose-400 transition">
+          <i class="fa-solid fa-arrow-right-from-bracket text-xs"></i>
         </button>
       </div>
 
-      <!-- Collector KPIs -->
-      <div id="collector-kpis" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        <!-- Rendered via JS -->
+      <div class="flex items-center justify-between text-[10px] text-slate-400 px-1">
+        <a href="/api/docs" target="_blank" class="hover:text-white transition flex items-center gap-1">
+          <i class="fa-solid fa-book"></i> Swagger Docs
+        </a>
+        <span>PostgreSQL :5433</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ================= 2. MAIN APPLICATION CONTENT ================= -->
+  <div class="flex-1 flex flex-col min-w-0">
+    
+    <!-- TOP COMMAND BAR -->
+    <header class="glass-header h-16 sticky top-0 z-20 px-6 flex items-center justify-between gap-4">
+      <!-- Breadcrumb / Section Header -->
+      <div class="flex items-center gap-2 text-xs font-mono">
+        <span class="text-slate-400">SANCHAY</span>
+        <span class="text-white/20">/</span>
+        <span id="topbar-breadcrumb" class="font-bold text-white text-sm">Platform Overview & Telemetry</span>
       </div>
 
-      <!-- Collector Tabs -->
-      <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
-        <div class="flex border-b border-slate-200 mb-6 gap-6">
-          <button id="collector-tab-listings-btn" onclick="app.switchCollectorSubTab('listings')" class="pb-3 border-b-2 border-brand-700 text-brand-700 font-bold text-sm flex items-center gap-2">
-            <i class="fa-solid fa-boxes-stacked"></i> My Waste Listings
-          </button>
-          <button id="collector-tab-transactions-btn" onclick="app.switchCollectorSubTab('transactions')" class="pb-3 border-b-2 border-transparent text-slate-500 hover:text-slate-800 font-bold text-sm flex items-center gap-2">
-            <i class="fa-solid fa-handshake"></i> Handovers & Earnings
-          </button>
+      <!-- Quick Action Area -->
+      <div class="flex items-center gap-3">
+        <!-- Live DB Pill -->
+        <div class="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#00F090]/10 border border-[#00F090]/30 text-[10px] font-mono text-[#00F090]">
+          <span class="w-1.5 h-1.5 rounded-full bg-[#00F090] animate-pulse"></span>
+          <span>POSTGRES LIVE</span>
         </div>
 
-        <!-- My Listings Sub-view -->
-        <div id="collector-subview-listings">
-          <div id="collector-listings-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <!-- Listings cards injected via JS -->
+        <!-- Create Listing CTA -->
+        <button onclick="app.openCreateListingModal()" class="px-3.5 py-1.5 btn-emerald text-xs font-mono font-bold flex items-center gap-1.5 transform active:scale-95 shadow-[0_0_15px_rgba(0,240,144,0.3)]">
+          <i class="fa-solid fa-plus text-[10px]"></i> LIST E-WASTE
+        </button>
+
+        <!-- Verify Public Modal Trigger -->
+        <button onclick="app.showPublicVerifyModal()" class="px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 font-mono text-xs border border-white/10 transition hidden sm:flex items-center gap-1.5">
+          <i class="fa-solid fa-qrcode text-[#00F090]"></i> Verify
+        </button>
+
+        <!-- Hidden Auth Buttons placeholder for app.js sync -->
+        <div id="auth-buttons" class="hidden"></div>
+        <div id="user-menu" class="hidden"></div>
+        <div id="nav-links" class="hidden"></div>
+      </div>
+    </header>
+
+    <!-- MAIN VIEWS CONTAINER -->
+    <main class="flex-1 p-6 lg:p-8 max-w-7xl w-full mx-auto space-y-6">
+
+      <!-- ================= VIEW 1: PLATFORM OVERVIEW (COMMAND CENTER) ================= -->
+      <section id="view-landing" class="view-panel space-y-6">
+        
+        <!-- Live Telemetry Banner -->
+        <div class="sanchay-card p-6 sm:p-8 relative overflow-hidden bg-gradient-to-r from-[#0F141C] via-[#0C1017] to-[#0A0D12]">
+          <div class="absolute right-0 top-0 w-96 h-96 bg-[#00F090]/10 rounded-full blur-3xl pointer-events-none"></div>
+
+          <div class="relative z-10 max-w-3xl space-y-3">
+            <span class="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#00F090]/10 text-[#00F090] border border-[#00F090]/30">
+              <span class="w-1.5 h-1.5 rounded-full bg-[#00F090] animate-pulse"></span>
+              DIGITAL E-WASTE HANDOVER INTERMEDIARY
+            </span>
+            <h1 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
+              Traceable Chain of Custody for India’s Informal E-Waste Economy
+            </h1>
+            <p class="text-xs sm:text-sm text-slate-300 leading-relaxed font-normal">
+              Connecting local scrap aggregators (kabadiwalas) directly to authorized recyclers. Eliminates middleman loss, generates cryptographically verified handover manifests, and delivers auditable ESG diversion data for electronics brands.
+            </p>
+          </div>
+
+          <!-- 4 Telemetry Metrics -->
+          <div class="mt-6 pt-5 border-t border-white/10 grid grid-cols-2 sm:grid-cols-4 gap-4 font-mono">
+            <div>
+              <span class="text-[10px] text-slate-400 uppercase tracking-wider block">Verified Weight</span>
+              <span class="text-xl sm:text-2xl font-black text-white">12.80 <span class="text-xs text-[#00F090]">kg</span></span>
+            </div>
+            <div>
+              <span class="text-[10px] text-slate-400 uppercase tracking-wider block">Tamper Evident Proof</span>
+              <span class="text-xl sm:text-2xl font-black text-[#00F090]">100% SHA-256</span>
+            </div>
+            <div>
+              <span class="text-[10px] text-slate-400 uppercase tracking-wider block">Collector Payout</span>
+              <span class="text-xl sm:text-2xl font-black text-white">₹1,920 <span class="text-xs text-amber-400">Direct</span></span>
+            </div>
+            <div>
+              <span class="text-[10px] text-slate-400 uppercase tracking-wider block">Regulatory Framework</span>
+              <span class="text-xl sm:text-2xl font-black text-sky-400">CPCB 2022</span>
+            </div>
           </div>
         </div>
 
-        <!-- My Transactions Sub-view -->
-        <div id="collector-subview-transactions" class="hidden">
-          <div class="overflow-x-auto">
-            <table class="w-full text-left text-sm text-slate-600">
-              <thead class="bg-slate-50 text-slate-700 font-bold text-xs uppercase border-b border-slate-200">
-                <tr>
-                  <th class="py-3 px-4">Transaction ID</th>
-                  <th class="py-3 px-4">Recycler</th>
-                  <th class="py-3 px-4">Category</th>
-                  <th class="py-3 px-4">Weight (kg)</th>
-                  <th class="py-3 px-4">Total Value</th>
-                  <th class="py-3 px-4">Status</th>
-                  <th class="py-3 px-4 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody id="collector-transactions-tbody" class="divide-y divide-slate-100">
-                <!-- Transactions rows injected via JS -->
-              </tbody>
-            </table>
+        <!-- 5-Stage Custody Pipeline Flow -->
+        <div class="space-y-3">
+          <div class="flex items-center justify-between">
+            <h2 class="text-xs font-mono font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
+              <i class="fa-solid fa-diagram-project text-[#00F090]"></i> 5-Stage Verification Protocol
+            </h2>
+            <span class="text-[10px] font-mono text-[#00F090]">● ATOMIC TRANSACTIONS</span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-5 gap-3 font-mono text-xs">
+            <div class="sanchay-card p-4">
+              <span class="text-[9px] font-bold text-[#00F090] bg-[#00F090]/10 px-2 py-0.5 rounded border border-[#00F090]/20">01 // LIST</span>
+              <h3 class="font-bold text-white text-xs mt-2 mb-1">Collector Listings</h3>
+              <p class="text-[11px] text-slate-400 leading-relaxed font-sans">Aggregator posts segregated waste with estimated kg and pickup address.</p>
+            </div>
+            <div class="sanchay-card p-4">
+              <span class="text-[9px] font-bold text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded border border-amber-400/20">02 // RESERVE</span>
+              <h3 class="font-bold text-white text-xs mt-2 mb-1">Recycler Match</h3>
+              <p class="text-[11px] text-slate-400 leading-relaxed font-sans">Authorized facility finds batch in marketplace and locks reservation.</p>
+            </div>
+            <div class="sanchay-card p-4">
+              <span class="text-[9px] font-bold text-sky-400 bg-sky-400/10 px-2 py-0.5 rounded border border-sky-400/20">03 // WEIGH</span>
+              <h3 class="font-bold text-white text-xs mt-2 mb-1">Scale Weighing</h3>
+              <p class="text-[11px] text-slate-400 leading-relaxed font-sans">Material weighed on calibrated scales; scale slip photo attached.</p>
+            </div>
+            <div class="sanchay-card p-4">
+              <span class="text-[9px] font-bold text-purple-400 bg-purple-400/10 px-2 py-0.5 rounded border border-purple-400/20">04 // SIGN</span>
+              <h3 class="font-bold text-white text-xs mt-2 mb-1">Dual Sign-Off</h3>
+              <p class="text-[11px] text-slate-400 leading-relaxed font-sans">Both parties digitally sign off handover with timestamped evidence.</p>
+            </div>
+            <div class="sanchay-card p-4">
+              <span class="text-[9px] font-bold text-[#00F090] bg-[#00F090]/10 px-2 py-0.5 rounded border border-[#00F090]/20">05 // MANIFEST</span>
+              <h3 class="font-bold text-white text-xs mt-2 mb-1">Digital Manifest</h3>
+              <p class="text-[11px] text-slate-400 leading-relaxed font-sans">Cryptographic manifest generated with scannable QR and PDF download.</p>
+            </div>
           </div>
         </div>
-      </div>
-    </section>
 
-    <!-- 3. RECYCLER PORTAL VIEW -->
-    <section id="view-recycler" class="view-panel hidden">
-      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-        <div>
-          <div class="flex items-center gap-3">
-            <h1 class="text-2xl font-bold text-slate-900">Recycler Operations Portal</h1>
-            <span id="recycler-verification-badge" class="px-2.5 py-0.5 rounded-full text-xs font-bold badge-pending">PENDING</span>
-          </div>
-          <p class="text-sm text-slate-500">Browse available informal e-waste batches, reserve materials, record verified scale weights</p>
-        </div>
-      </div>
-
-      <!-- Recycler KPIs -->
-      <div id="recycler-kpis" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        <!-- Rendered via JS -->
-      </div>
-
-      <!-- Recycler Subtabs -->
-      <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
-        <div class="flex border-b border-slate-200 mb-6 gap-6">
-          <button id="recycler-tab-marketplace-btn" onclick="app.switchRecyclerSubTab('marketplace')" class="pb-3 border-b-2 border-brand-700 text-brand-700 font-bold text-sm flex items-center gap-2">
-            <i class="fa-solid fa-store"></i> Waste Marketplace
-          </button>
-          <button id="recycler-tab-handovers-btn" onclick="app.switchRecyclerSubTab('handovers')" class="pb-3 border-b-2 border-transparent text-slate-500 hover:text-slate-800 font-bold text-sm flex items-center gap-2">
-            <i class="fa-solid fa-truck-ramp-box"></i> Accepted Handovers
-          </button>
-          <button id="recycler-tab-profile-btn" onclick="app.switchRecyclerSubTab('profile')" class="pb-3 border-b-2 border-transparent text-slate-500 hover:text-slate-800 font-bold text-sm flex items-center gap-2">
-            <i class="fa-solid fa-id-card"></i> Facility Profile
-          </button>
-        </div>
-
-        <!-- Marketplace Sub-view -->
-        <div id="recycler-subview-marketplace">
-          <!-- Filter Controls -->
-          <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 mb-6 flex flex-wrap items-center gap-3">
-            <div class="flex-1 min-w-[200px]">
-              <label class="block text-xs font-semibold text-slate-600 mb-1">Waste Category</label>
-              <select id="market-filter-category" onchange="app.loadMarketplace()" class="w-full text-sm bg-white border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-brand-500 focus:outline-none">
-                <option value="">All Electronic Waste Categories</option>
-                <option value="CIRCUIT_BOARDS_PCBS">Circuit boards / PCBs</option>
-                <option value="MOBILE_PHONES">Mobile phones</option>
-                <option value="LAPTOPS">Laptops</option>
-                <option value="DESKTOP_COMPUTERS">Desktop computers</option>
-                <option value="BATTERIES">Batteries</option>
-                <option value="CABLES_AND_WIRES">Cables and wires</option>
-                <option value="ELECTRONIC_COMPONENTS">Electronic components</option>
-                <option value="OTHER_ELECTRONIC_WASTE">Other electronic waste</option>
-              </select>
+        <!-- Role Portals Grid -->
+        <div class="space-y-3">
+          <h2 class="text-xs font-mono font-bold uppercase tracking-wider text-slate-400">
+            CHOOSE OPERATIONAL PORTAL
+          </h2>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <!-- Collector -->
+            <div class="sanchay-card p-5 flex flex-col justify-between">
+              <div>
+                <div class="w-9 h-9 rounded-lg bg-amber-400/10 text-amber-400 border border-amber-400/20 flex items-center justify-center text-sm mb-3">
+                  <i class="fa-solid fa-truck-pickup"></i>
+                </div>
+                <h3 class="font-bold text-white text-sm">Collector Portal</h3>
+                <p class="text-[11px] font-mono text-amber-400 mb-2">Ramesh Kumar</p>
+                <p class="text-xs text-slate-400 leading-relaxed mb-4">Post e-waste batches, set prices, and monitor gross earnings.</p>
+              </div>
+              <button onclick="app.quickLogin('collector@sanchay.io')" class="w-full py-2 px-3 rounded-xl bg-white/5 hover:bg-amber-400 hover:text-black text-amber-400 font-mono text-xs font-bold border border-amber-400/30 transition flex items-center justify-center gap-1.5">
+                Open Collector <i class="fa-solid fa-arrow-right text-[10px]"></i>
+              </button>
             </div>
 
-            <div class="w-40">
-              <label class="block text-xs font-semibold text-slate-600 mb-1">City Filter</label>
-              <input type="text" id="market-filter-city" placeholder="e.g. Mumbai" oninput="app.loadMarketplaceDebounced()" class="w-full text-sm bg-white border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-brand-500 focus:outline-none">
+            <!-- Recycler -->
+            <div class="sanchay-card p-5 flex flex-col justify-between">
+              <div>
+                <div class="w-9 h-9 rounded-lg bg-[#00F090]/10 text-[#00F090] border border-[#00F090]/20 flex items-center justify-center text-sm mb-3">
+                  <i class="fa-solid fa-recycle"></i>
+                </div>
+                <h3 class="font-bold text-white text-sm">Recycler Facility</h3>
+                <p class="text-[11px] font-mono text-[#00F090] mb-2">GreenCycle Tech</p>
+                <p class="text-xs text-slate-400 leading-relaxed mb-4">Discover waste batches, record scale weights, and sign handovers.</p>
+              </div>
+              <button onclick="app.quickLogin('recycler@sanchay.io')" class="w-full py-2 px-3 rounded-xl bg-white/5 hover:bg-[#00F090] hover:text-black text-[#00F090] font-mono text-xs font-bold border border-[#00F090]/30 transition flex items-center justify-center gap-1.5">
+                Open Recycler <i class="fa-solid fa-arrow-right text-[10px]"></i>
+              </button>
             </div>
 
-            <div class="w-32">
-              <label class="block text-xs font-semibold text-slate-600 mb-1">Min Wt (kg)</label>
-              <input type="number" id="market-filter-minweight" placeholder="Min" oninput="app.loadMarketplaceDebounced()" class="w-full text-sm bg-white border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-brand-500 focus:outline-none">
+            <!-- Brand -->
+            <div class="sanchay-card p-5 flex flex-col justify-between">
+              <div>
+                <div class="w-9 h-9 rounded-lg bg-sky-400/10 text-sky-400 border border-sky-400/20 flex items-center justify-center text-sm mb-3">
+                  <i class="fa-solid fa-building"></i>
+                </div>
+                <h3 class="font-bold text-white text-sm">Brand ESG Hub</h3>
+                <p class="text-[11px] font-mono text-sky-400 mb-2">NovaTech Electronics</p>
+                <p class="text-xs text-slate-400 leading-relaxed mb-4">Review digital manifests, audit custody, and export verified CSVs.</p>
+              </div>
+              <button onclick="app.quickLogin('brand@sanchay.io')" class="w-full py-2 px-3 rounded-xl bg-white/5 hover:bg-sky-400 hover:text-black text-sky-400 font-mono text-xs font-bold border border-sky-400/30 transition flex items-center justify-center gap-1.5">
+                Open Brand Hub <i class="fa-solid fa-arrow-right text-[10px]"></i>
+              </button>
             </div>
 
-            <div class="w-32">
-              <label class="block text-xs font-semibold text-slate-600 mb-1">Max Wt (kg)</label>
-              <input type="number" id="market-filter-maxweight" placeholder="Max" oninput="app.loadMarketplaceDebounced()" class="w-full text-sm bg-white border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-brand-500 focus:outline-none">
-            </div>
-
-            <div class="self-end">
-              <button onclick="app.resetMarketplaceFilters()" class="p-2 text-slate-500 hover:text-slate-800 text-sm font-semibold">
-                <i class="fa-solid fa-rotate-left mr-1"></i> Reset
+            <!-- Admin -->
+            <div class="sanchay-card p-5 flex flex-col justify-between">
+              <div>
+                <div class="w-9 h-9 rounded-lg bg-rose-400/10 text-rose-400 border border-rose-400/20 flex items-center justify-center text-sm mb-3">
+                  <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <h3 class="font-bold text-white text-sm">Admin Ledger</h3>
+                <p class="text-[11px] font-mono text-rose-400 mb-2">Sanchay Operations</p>
+                <p class="text-xs text-slate-400 leading-relaxed mb-4">Approve recyclers, link brand access, inspect audit ledger.</p>
+              </div>
+              <button onclick="app.quickLogin('admin@sanchay.io')" class="w-full py-2 px-3 rounded-xl bg-white/5 hover:bg-rose-400 hover:text-black text-rose-400 font-mono text-xs font-bold border border-rose-400/30 transition flex items-center justify-center gap-1.5">
+                Open Admin <i class="fa-solid fa-arrow-right text-[10px]"></i>
               </button>
             </div>
           </div>
+        </div>
 
-          <!-- Available Marketplace Listings -->
-          <div id="marketplace-listings-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <!-- Injected via JS -->
+      </section>
+
+      <!-- ================= VIEW 2: COLLECTOR PORTAL ================= -->
+      <section id="view-collector" class="view-panel hidden space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h1 class="text-xl font-bold text-white font-mono flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span> COLLECTOR // INVENTORY & HANDOVERS
+            </h1>
+            <p class="text-xs text-slate-400 mt-0.5">Post segregated scrap batches, view reservation status, track completed earnings</p>
           </div>
-        </div>
-
-        <!-- Recycler Accepted Handovers Sub-view -->
-        <div id="recycler-subview-handovers" class="hidden">
-          <div class="overflow-x-auto">
-            <table class="w-full text-left text-sm text-slate-600">
-              <thead class="bg-slate-50 text-slate-700 font-bold text-xs uppercase border-b border-slate-200">
-                <tr>
-                  <th class="py-3 px-4">Transaction ID</th>
-                  <th class="py-3 px-4">Collector</th>
-                  <th class="py-3 px-4">Category</th>
-                  <th class="py-3 px-4">Verified Weight</th>
-                  <th class="py-3 px-4">Total Amount</th>
-                  <th class="py-3 px-4">Evidence</th>
-                  <th class="py-3 px-4">Status</th>
-                  <th class="py-3 px-4 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody id="recycler-handovers-tbody" class="divide-y divide-slate-100">
-                <!-- Injected via JS -->
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- Recycler Profile Sub-view -->
-        <div id="recycler-subview-profile" class="hidden">
-          <div id="recycler-profile-card" class="max-w-2xl bg-slate-50 p-6 rounded-2xl border border-slate-200">
-            <!-- Injected via JS -->
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- 4. BRAND DASHBOARD & ANALYTICS VIEW -->
-    <section id="view-brand" class="view-panel hidden">
-      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-        <div>
-          <h1 class="text-2xl font-bold text-slate-900">Brand EPR & Sustainability Intelligence</h1>
-          <p class="text-sm text-slate-500">Documented electronic waste diversion metrics from verified digital handover manifests</p>
-        </div>
-        <button onclick="app.exportBrandCsv()" class="px-4 py-2.5 rounded-xl font-bold text-sm text-white bg-indigo-700 hover:bg-indigo-800 shadow-md shadow-indigo-700/20 flex items-center gap-2 transition">
-          <i class="fa-solid fa-file-csv"></i> Export Verified Report (CSV)
-        </button>
-      </div>
-
-      <!-- Compliance Notice Card -->
-      <div class="bg-indigo-50 border border-indigo-200 rounded-2xl p-4 mb-6 flex items-start gap-3">
-        <i class="fa-solid fa-circle-info text-indigo-600 mt-0.5 text-lg"></i>
-        <div class="text-xs text-indigo-950 leading-relaxed">
-          <strong>Chain of Custody Scope:</strong> This reporting portal reflects digital e-waste handovers executed and verified on the Sanchay platform. In accordance with platform governance, these records document physical chain-of-custody transactions between informal collectors and authorized recyclers, and must not be construed as official government EPR credits or proof of complete recycling.
-        </div>
-      </div>
-
-      <!-- Brand KPIs -->
-      <div id="brand-kpis" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        <!-- Rendered via JS -->
-      </div>
-
-      <!-- Charts & Breakdown Grids -->
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        <!-- Category Distribution -->
-        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-          <h3 class="font-bold text-slate-900 text-base mb-4 flex items-center gap-2">
-            <i class="fa-solid fa-chart-pie text-indigo-600"></i> Waste Distribution by Category
-          </h3>
-          <div id="brand-category-distribution" class="space-y-4">
-            <!-- Injected via JS -->
-          </div>
-        </div>
-
-        <!-- Geographic Distribution -->
-        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-          <h3 class="font-bold text-slate-900 text-base mb-4 flex items-center gap-2">
-            <i class="fa-solid fa-map-location-dot text-indigo-600"></i> Geographic Sourcing Breakdown
-          </h3>
-          <div id="brand-location-distribution" class="space-y-3">
-            <!-- Injected via JS -->
-          </div>
-        </div>
-      </div>
-
-      <!-- Associated Digital Manifests Table -->
-      <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
-        <h3 class="font-bold text-slate-900 text-base mb-4 flex items-center gap-2">
-          <i class="fa-solid fa-file-contract text-indigo-600"></i> Associated Digital Handover Manifests
-        </h3>
-        <div class="overflow-x-auto">
-          <table class="w-full text-left text-sm text-slate-600">
-            <thead class="bg-slate-50 text-slate-700 font-bold text-xs uppercase border-b border-slate-200">
-              <tr>
-                <th class="py-3 px-4">Manifest ID</th>
-                <th class="py-3 px-4">Handover Date</th>
-                <th class="py-3 px-4">Category</th>
-                <th class="py-3 px-4">Verified Weight</th>
-                <th class="py-3 px-4">Location</th>
-                <th class="py-3 px-4">Recycler</th>
-                <th class="py-3 px-4 text-right">Verification & PDF</th>
-              </tr>
-            </thead>
-            <tbody id="brand-manifests-tbody" class="divide-y divide-slate-100">
-              <!-- Injected via JS -->
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <!-- 5. ADMIN CONTROL ROOM VIEW -->
-    <section id="view-admin" class="view-panel hidden">
-      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-        <div>
-          <h1 class="text-2xl font-bold text-slate-900">Platform Administration & Governance</h1>
-          <p class="text-sm text-slate-500">Recycler credential approvals, brand access assignments, and immutable audit logs</p>
-        </div>
-        <button onclick="app.openAssociateBrandModal()" class="px-4 py-2.5 rounded-xl font-bold text-sm text-white bg-rose-700 hover:bg-rose-800 shadow-md shadow-rose-700/20 flex items-center gap-2 transition">
-          <i class="fa-solid fa-link"></i> Associate Manifest with Brand
-        </button>
-      </div>
-
-      <!-- Admin Platform KPIs -->
-      <div id="admin-kpis" class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
-        <!-- Rendered via JS -->
-      </div>
-
-      <!-- Admin Subtabs -->
-      <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
-        <div class="flex border-b border-slate-200 mb-6 gap-6 overflow-x-auto">
-          <button id="admin-tab-recyclers-btn" onclick="app.switchAdminSubTab('recyclers')" class="pb-3 border-b-2 border-brand-700 text-brand-700 font-bold text-sm flex items-center gap-2 flex-shrink-0">
-            <i class="fa-solid fa-user-check"></i> Pending Recyclers (<span id="pending-recycler-count">0</span>)
-          </button>
-          <button id="admin-tab-users-btn" onclick="app.switchAdminSubTab('users')" class="pb-3 border-b-2 border-transparent text-slate-500 hover:text-slate-800 font-bold text-sm flex items-center gap-2 flex-shrink-0">
-            <i class="fa-solid fa-users"></i> Users
-          </button>
-          <button id="admin-tab-listings-btn" onclick="app.switchAdminSubTab('listings')" class="pb-3 border-b-2 border-transparent text-slate-500 hover:text-slate-800 font-bold text-sm flex items-center gap-2 flex-shrink-0">
-            <i class="fa-solid fa-boxes-stacked"></i> All Listings
-          </button>
-          <button id="admin-tab-manifests-btn" onclick="app.switchAdminSubTab('manifests')" class="pb-3 border-b-2 border-transparent text-slate-500 hover:text-slate-800 font-bold text-sm flex items-center gap-2 flex-shrink-0">
-            <i class="fa-solid fa-file-invoice"></i> Manifests
-          </button>
-          <button id="admin-tab-audit-btn" onclick="app.switchAdminSubTab('audit')" class="pb-3 border-b-2 border-transparent text-slate-500 hover:text-slate-800 font-bold text-sm flex items-center gap-2 flex-shrink-0">
-            <i class="fa-solid fa-clipboard-list"></i> Audit Ledger
+          <button onclick="app.openCreateListingModal()" class="px-4 py-2 btn-emerald text-xs font-mono font-bold flex items-center gap-1.5">
+            <i class="fa-solid fa-plus text-[10px]"></i> LIST NEW E-WASTE
           </button>
         </div>
 
-        <!-- Subview: Pending Recyclers -->
-        <div id="admin-subview-recyclers">
-          <div id="admin-pending-recyclers-container" class="space-y-4">
-            <!-- Injected via JS -->
-          </div>
-        </div>
-
-        <!-- Subview: Users -->
-        <div id="admin-subview-users" class="hidden">
-          <div class="overflow-x-auto">
-            <table class="w-full text-left text-sm text-slate-600">
-              <thead class="bg-slate-50 text-slate-700 font-bold text-xs uppercase border-b border-slate-200">
-                <tr>
-                  <th class="py-3 px-4">Name</th>
-                  <th class="py-3 px-4">Email</th>
-                  <th class="py-3 px-4">Role</th>
-                  <th class="py-3 px-4">Organization</th>
-                  <th class="py-3 px-4">City</th>
-                  <th class="py-3 px-4">Joined</th>
-                </tr>
-              </thead>
-              <tbody id="admin-users-tbody" class="divide-y divide-slate-100">
-                <!-- Injected via JS -->
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- Subview: Listings -->
-        <div id="admin-subview-listings" class="hidden">
-          <div class="overflow-x-auto">
-            <table class="w-full text-left text-sm text-slate-600">
-              <thead class="bg-slate-50 text-slate-700 font-bold text-xs uppercase border-b border-slate-200">
-                <tr>
-                  <th class="py-3 px-4">ID</th>
-                  <th class="py-3 px-4">Category</th>
-                  <th class="py-3 px-4">Weight</th>
-                  <th class="py-3 px-4">Expected Price</th>
-                  <th class="py-3 px-4">Collector</th>
-                  <th class="py-3 px-4">City</th>
-                  <th class="py-3 px-4">Status</th>
-                </tr>
-              </thead>
-              <tbody id="admin-listings-tbody" class="divide-y divide-slate-100">
-                <!-- Injected via JS -->
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- Subview: Manifests -->
-        <div id="admin-subview-manifests" class="hidden">
-          <div class="overflow-x-auto">
-            <table class="w-full text-left text-sm text-slate-600">
-              <thead class="bg-slate-50 text-slate-700 font-bold text-xs uppercase border-b border-slate-200">
-                <tr>
-                  <th class="py-3 px-4">Manifest #</th>
-                  <th class="py-3 px-4">Date</th>
-                  <th class="py-3 px-4">Category</th>
-                  <th class="py-3 px-4">Weight</th>
-                  <th class="py-3 px-4">Collector</th>
-                  <th class="py-3 px-4">Recycler</th>
-                  <th class="py-3 px-4">Brand Access</th>
-                  <th class="py-3 px-4 text-right">PDF</th>
-                </tr>
-              </thead>
-              <tbody id="admin-manifests-tbody" class="divide-y divide-slate-100">
-                <!-- Injected via JS -->
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- Subview: Audit Ledger -->
-        <div id="admin-subview-audit" class="hidden">
-          <div class="overflow-x-auto">
-            <table class="w-full text-left text-xs text-slate-600 font-mono">
-              <thead class="bg-slate-50 text-slate-700 font-bold text-[11px] uppercase border-b border-slate-200">
-                <tr>
-                  <th class="py-2.5 px-3">Timestamp</th>
-                  <th class="py-2.5 px-3">Action</th>
-                  <th class="py-2.5 px-3">Entity Type</th>
-                  <th class="py-2.5 px-3">Actor</th>
-                  <th class="py-2.5 px-3">Status Change</th>
-                  <th class="py-2.5 px-3">Metadata</th>
-                </tr>
-              </thead>
-              <tbody id="admin-audit-tbody" class="divide-y divide-slate-100">
-                <!-- Injected via JS -->
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- 6. PUBLIC QR VERIFICATION VIEW -->
-    <section id="view-verify" class="view-panel hidden">
-      <div class="max-w-3xl mx-auto">
-        <div class="mb-6 text-center">
-          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-teal-100 text-teal-800 border border-teal-200 mb-2">
-            <i class="fa-solid fa-shield-check"></i> Project Sanchay Public Registry
-          </span>
-          <h1 class="text-3xl font-extrabold text-slate-900 mb-2">Digital Handover Verification</h1>
-          <p class="text-slate-500 text-sm">Verify recorded electronic waste custody handovers against immutable platform audit records.</p>
-        </div>
-
-        <!-- Search input for token -->
-        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm mb-6 flex gap-3">
-          <input type="text" id="verify-token-input" placeholder="Enter cryptographic public token from QR code..." class="flex-grow p-3 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:outline-none">
-          <button onclick="app.executePublicVerify()" class="px-6 py-3 rounded-xl bg-brand-700 hover:bg-brand-800 text-white font-bold text-sm transition">
-            Verify Now
-          </button>
-        </div>
-
-        <!-- Verification Result Container -->
-        <div id="verify-result-container">
+        <!-- Collector KPIs -->
+        <div id="collector-kpis" class="grid grid-cols-2 md:grid-cols-4 gap-4 font-mono">
           <!-- Injected via JS -->
         </div>
-      </div>
-    </section>
 
-  </main>
+        <!-- Collector Tabs -->
+        <div class="sanchay-card p-6">
+          <div class="flex border-b border-white/10 mb-6 gap-6 font-mono text-xs">
+            <button id="collector-tab-listings-btn" onclick="app.switchCollectorSubTab('listings')" class="pb-3 border-b-2 border-[#00F090] text-[#00F090] font-bold flex items-center gap-2">
+              <i class="fa-solid fa-boxes-stacked"></i> My Waste Listings
+            </button>
+            <button id="collector-tab-transactions-btn" onclick="app.switchCollectorSubTab('transactions')" class="pb-3 border-b-2 border-transparent text-slate-400 hover:text-white font-bold flex items-center gap-2">
+              <i class="fa-solid fa-handshake"></i> Handovers & Earnings
+            </button>
+          </div>
 
-  <!-- MODALS -->
+          <!-- Listings Subview -->
+          <div id="collector-subview-listings">
+            <div id="collector-listings-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <!-- Injected via JS -->
+            </div>
+          </div>
 
-  <!-- Auth Modal (Login / Register) -->
+          <!-- Transactions Subview -->
+          <div id="collector-subview-transactions" class="hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs text-slate-300">
+                <thead class="bg-[#0A0E14] text-slate-400 font-mono text-[11px] uppercase border-b border-white/10">
+                  <tr>
+                    <th class="py-3 px-4">Transaction ID</th>
+                    <th class="py-3 px-4">Recycler</th>
+                    <th class="py-3 px-4">Category</th>
+                    <th class="py-3 px-4 font-mono">Weight (kg)</th>
+                    <th class="py-3 px-4 font-mono">Total Value</th>
+                    <th class="py-3 px-4">Status</th>
+                    <th class="py-3 px-4 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="collector-transactions-tbody" class="divide-y divide-white/5 font-mono">
+                  <!-- Injected via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= VIEW 3: RECYCLER OPERATIONS ================= -->
+      <section id="view-recycler" class="view-panel hidden space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <div class="flex items-center gap-3">
+              <h1 class="text-xl font-bold text-white font-mono flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-[#00F090] animate-pulse"></span> RECYCLER // DISCOVERY & WEIGHING
+              </h1>
+              <span id="recycler-verification-badge" class="px-2 py-0.5 rounded text-[10px] font-mono font-bold badge-pending">PENDING</span>
+            </div>
+            <p class="text-xs text-slate-400 mt-0.5">Discover informal waste listings, lock batch reservations, record calibrated weights</p>
+          </div>
+        </div>
+
+        <!-- Recycler KPIs -->
+        <div id="recycler-kpis" class="grid grid-cols-2 md:grid-cols-4 gap-4 font-mono">
+          <!-- Injected via JS -->
+        </div>
+
+        <!-- Recycler Tabs -->
+        <div class="sanchay-card p-6">
+          <div class="flex border-b border-white/10 mb-6 gap-6 font-mono text-xs">
+            <button id="recycler-tab-marketplace-btn" onclick="app.switchRecyclerSubTab('marketplace')" class="pb-3 border-b-2 border-[#00F090] text-[#00F090] font-bold flex items-center gap-2">
+              <i class="fa-solid fa-store"></i> Waste Marketplace
+            </button>
+            <button id="recycler-tab-handovers-btn" onclick="app.switchRecyclerSubTab('handovers')" class="pb-3 border-b-2 border-transparent text-slate-400 hover:text-white font-bold flex items-center gap-2">
+              <i class="fa-solid fa-truck-ramp-box"></i> Accepted Handovers
+            </button>
+            <button id="recycler-tab-profile-btn" onclick="app.switchRecyclerSubTab('profile')" class="pb-3 border-b-2 border-transparent text-slate-400 hover:text-white font-bold flex items-center gap-2">
+              <i class="fa-solid fa-id-card"></i> Facility Profile
+            </button>
+          </div>
+
+          <!-- Marketplace Subview -->
+          <div id="recycler-subview-marketplace">
+            <!-- Filter Bar -->
+            <div class="bg-[#0A0E14] p-4 rounded-xl border border-white/10 mb-6 flex flex-wrap items-center gap-3 font-mono text-xs">
+              <div class="flex-1 min-w-[200px]">
+                <label class="block text-[10px] text-slate-400 mb-1">WASTE CATEGORY</label>
+                <select id="market-filter-category" onchange="app.loadMarketplace()" class="w-full bg-[#0F141C] text-white border border-white/10 rounded-lg p-2 focus:ring-1 focus:ring-[#00F090] focus:outline-none">
+                  <option value="">All Electronic Waste Categories</option>
+                  <option value="CIRCUIT_BOARDS_PCBS">Circuit boards / PCBs</option>
+                  <option value="MOBILE_PHONES">Mobile phones</option>
+                  <option value="LAPTOPS">Laptops</option>
+                  <option value="DESKTOP_COMPUTERS">Desktop computers</option>
+                  <option value="BATTERIES">Batteries</option>
+                  <option value="CABLES_AND_WIRES">Cables and wires</option>
+                  <option value="ELECTRONIC_COMPONENTS">Electronic components</option>
+                  <option value="OTHER_ELECTRONIC_WASTE">Other electronic waste</option>
+                </select>
+              </div>
+
+              <div class="w-36">
+                <label class="block text-[10px] text-slate-400 mb-1">CITY</label>
+                <input type="text" id="market-filter-city" placeholder="e.g. Mumbai" oninput="app.loadMarketplaceDebounced()" class="w-full bg-[#0F141C] text-white border border-white/10 rounded-lg p-2 focus:ring-1 focus:ring-[#00F090] focus:outline-none">
+              </div>
+
+              <div class="w-28">
+                <label class="block text-[10px] text-slate-400 mb-1">MIN WT (KG)</label>
+                <input type="number" id="market-filter-minweight" placeholder="Min" oninput="app.loadMarketplaceDebounced()" class="w-full bg-[#0F141C] text-white border border-white/10 rounded-lg p-2 focus:ring-1 focus:ring-[#00F090] focus:outline-none">
+              </div>
+
+              <div class="w-28">
+                <label class="block text-[10px] text-slate-400 mb-1">MAX WT (KG)</label>
+                <input type="number" id="market-filter-maxweight" placeholder="Max" oninput="app.loadMarketplaceDebounced()" class="w-full bg-[#0F141C] text-white border border-white/10 rounded-lg p-2 focus:ring-1 focus:ring-[#00F090] focus:outline-none">
+              </div>
+
+              <div class="self-end">
+                <button onclick="app.resetMarketplaceFilters()" class="p-2 text-slate-400 hover:text-white transition">
+                  <i class="fa-solid fa-rotate-left mr-1"></i> Reset
+                </button>
+              </div>
+            </div>
+
+            <!-- Listings Grid -->
+            <div id="marketplace-listings-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <!-- Injected via JS -->
+            </div>
+          </div>
+
+          <!-- Accepted Handovers Subview -->
+          <div id="recycler-subview-handovers" class="hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs text-slate-300">
+                <thead class="bg-[#0A0E14] text-slate-400 font-mono text-[11px] uppercase border-b border-white/10">
+                  <tr>
+                    <th class="py-3 px-4">Transaction ID</th>
+                    <th class="py-3 px-4">Collector</th>
+                    <th class="py-3 px-4">Category</th>
+                    <th class="py-3 px-4 font-mono">Verified Weight</th>
+                    <th class="py-3 px-4 font-mono">Total Amount</th>
+                    <th class="py-3 px-4">Evidence</th>
+                    <th class="py-3 px-4">Status</th>
+                    <th class="py-3 px-4 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="recycler-handovers-tbody" class="divide-y divide-white/5 font-mono">
+                  <!-- Injected via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Profile Subview -->
+          <div id="recycler-subview-profile" class="hidden">
+            <div id="recycler-profile-card" class="max-w-2xl bg-[#0A0E14] p-6 rounded-2xl border border-white/10 font-mono">
+              <!-- Injected via JS -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= VIEW 4: BRAND ESG ANALYTICS ================= -->
+      <section id="view-brand" class="view-panel hidden space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h1 class="text-xl font-bold text-white font-mono flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-sky-400 animate-pulse"></span> BRAND // ESG RECOVERY INTELLIGENCE
+            </h1>
+            <p class="text-xs text-slate-400 mt-0.5">Auditable chain of custody records and CPCB-aligned diversion reports</p>
+          </div>
+          <button onclick="app.exportBrandCsv()" class="px-4 py-2 rounded-xl font-mono text-xs font-bold text-white bg-sky-600 hover:bg-sky-500 shadow-[0_0_20px_rgba(56,189,248,0.3)] flex items-center gap-2 transition">
+            <i class="fa-solid fa-file-csv"></i> EXPORT VERIFIED CSV
+          </button>
+        </div>
+
+        <!-- Brand KPIs -->
+        <div id="brand-kpis" class="grid grid-cols-2 md:grid-cols-4 gap-4 font-mono">
+          <!-- Injected via JS -->
+        </div>
+
+        <!-- Charts Grids -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div class="sanchay-card p-6">
+            <h3 class="font-bold text-white text-xs uppercase tracking-wider font-mono mb-4 flex items-center gap-2">
+              <i class="fa-solid fa-chart-pie text-sky-400"></i> Category Volume Breakdown
+            </h3>
+            <div id="brand-category-distribution" class="space-y-4 font-mono">
+              <!-- Injected via JS -->
+            </div>
+          </div>
+
+          <div class="sanchay-card p-6">
+            <h3 class="font-bold text-white text-xs uppercase tracking-wider font-mono mb-4 flex items-center gap-2">
+              <i class="fa-solid fa-map-location-dot text-sky-400"></i> Geographic Sourcing Locations
+            </h3>
+            <div id="brand-location-distribution" class="space-y-3 font-mono">
+              <!-- Injected via JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Manifests Table -->
+        <div class="sanchay-card p-6">
+          <h3 class="font-bold text-white text-xs uppercase tracking-wider font-mono mb-4 flex items-center gap-2">
+            <i class="fa-solid fa-file-contract text-sky-400"></i> Digital Handover Manifests
+          </h3>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs text-slate-300">
+              <thead class="bg-[#0A0E14] text-slate-400 font-mono text-[11px] uppercase border-b border-white/10">
+                <tr>
+                  <th class="py-3 px-4">Manifest ID</th>
+                  <th class="py-3 px-4">Handover Date</th>
+                  <th class="py-3 px-4">Category</th>
+                  <th class="py-3 px-4 font-mono">Verified Weight</th>
+                  <th class="py-3 px-4">Location</th>
+                  <th class="py-3 px-4">Recycler</th>
+                  <th class="py-3 px-4 text-right">Verification & PDF</th>
+                </tr>
+              </thead>
+              <tbody id="brand-manifests-tbody" class="divide-y divide-white/5 font-mono">
+                <!-- Injected via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= VIEW 5: ADMIN GOVERNANCE ================= -->
+      <section id="view-admin" class="view-panel hidden space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h1 class="text-xl font-bold text-white font-mono flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-rose-400 animate-pulse"></span> ADMIN // SYSTEM GOVERNANCE & AUDIT
+            </h1>
+            <p class="text-xs text-slate-400 mt-0.5">Recycler approval queue, brand associations, and immutable audit logs</p>
+          </div>
+          <button onclick="app.openAssociateBrandModal()" class="px-4 py-2 rounded-xl font-mono text-xs font-bold text-white bg-rose-600 hover:bg-rose-500 shadow-[0_0_20px_rgba(244,63,94,0.3)] flex items-center gap-2 transition">
+            <i class="fa-solid fa-link"></i> ASSOCIATE MANIFEST WITH BRAND
+          </button>
+        </div>
+
+        <!-- Admin KPIs -->
+        <div id="admin-kpis" class="grid grid-cols-2 md:grid-cols-5 gap-4 font-mono">
+          <!-- Injected via JS -->
+        </div>
+
+        <!-- Admin Tabs -->
+        <div class="sanchay-card p-6">
+          <div class="flex border-b border-white/10 mb-6 gap-6 font-mono text-xs overflow-x-auto">
+            <button id="admin-tab-recyclers-btn" onclick="app.switchAdminSubTab('recyclers')" class="pb-3 border-b-2 border-rose-500 text-rose-400 font-bold flex items-center gap-2 flex-shrink-0">
+              <i class="fa-solid fa-user-check"></i> Pending Recyclers (<span id="pending-recycler-count">0</span>)
+            </button>
+            <button id="admin-tab-users-btn" onclick="app.switchAdminSubTab('users')" class="pb-3 border-b-2 border-transparent text-slate-400 hover:text-white font-bold flex items-center gap-2 flex-shrink-0">
+              <i class="fa-solid fa-users"></i> Users
+            </button>
+            <button id="admin-tab-listings-btn" onclick="app.switchAdminSubTab('listings')" class="pb-3 border-b-2 border-transparent text-slate-400 hover:text-white font-bold flex items-center gap-2 flex-shrink-0">
+              <i class="fa-solid fa-boxes-stacked"></i> All Listings
+            </button>
+            <button id="admin-tab-manifests-btn" onclick="app.switchAdminSubTab('manifests')" class="pb-3 border-b-2 border-transparent text-slate-400 hover:text-white font-bold flex items-center gap-2 flex-shrink-0">
+              <i class="fa-solid fa-file-invoice"></i> Manifests
+            </button>
+            <button id="admin-tab-audit-btn" onclick="app.switchAdminSubTab('audit')" class="pb-3 border-b-2 border-transparent text-slate-400 hover:text-white font-bold flex items-center gap-2 flex-shrink-0">
+              <i class="fa-solid fa-clipboard-list"></i> Audit Ledger
+            </button>
+          </div>
+
+          <!-- Pending Recyclers -->
+          <div id="admin-subview-recyclers">
+            <div id="admin-pending-recyclers-container" class="space-y-4">
+              <!-- Injected via JS -->
+            </div>
+          </div>
+
+          <!-- Users -->
+          <div id="admin-subview-users" class="hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs text-slate-300">
+                <thead class="bg-[#0A0E14] text-slate-400 font-mono text-[11px] uppercase border-b border-white/10">
+                  <tr>
+                    <th class="py-3 px-4">Name</th>
+                    <th class="py-3 px-4">Email</th>
+                    <th class="py-3 px-4">Role</th>
+                    <th class="py-3 px-4">Organization</th>
+                    <th class="py-3 px-4">City</th>
+                    <th class="py-3 px-4">Joined</th>
+                  </tr>
+                </thead>
+                <tbody id="admin-users-tbody" class="divide-y divide-white/5 font-mono">
+                  <!-- Injected via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Listings -->
+          <div id="admin-subview-listings" class="hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs text-slate-300">
+                <thead class="bg-[#0A0E14] text-slate-400 font-mono text-[11px] uppercase border-b border-white/10">
+                  <tr>
+                    <th class="py-3 px-4">ID</th>
+                    <th class="py-3 px-4">Category</th>
+                    <th class="py-3 px-4 font-mono">Weight</th>
+                    <th class="py-3 px-4 font-mono">Expected Price</th>
+                    <th class="py-3 px-4">Collector</th>
+                    <th class="py-3 px-4">City</th>
+                    <th class="py-3 px-4">Status</th>
+                  </tr>
+                </thead>
+                <tbody id="admin-listings-tbody" class="divide-y divide-white/5 font-mono">
+                  <!-- Injected via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Manifests -->
+          <div id="admin-subview-manifests" class="hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs text-slate-300">
+                <thead class="bg-[#0A0E14] text-slate-400 font-mono text-[11px] uppercase border-b border-white/10">
+                  <tr>
+                    <th class="py-3 px-4">Manifest #</th>
+                    <th class="py-3 px-4">Date</th>
+                    <th class="py-3 px-4">Category</th>
+                    <th class="py-3 px-4 font-mono">Weight</th>
+                    <th class="py-3 px-4">Collector</th>
+                    <th class="py-3 px-4">Recycler</th>
+                    <th class="py-3 px-4">Brand Access</th>
+                    <th class="py-3 px-4 text-right">PDF</th>
+                  </tr>
+                </thead>
+                <tbody id="admin-manifests-tbody" class="divide-y divide-white/5 font-mono">
+                  <!-- Injected via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Audit Ledger -->
+          <div id="admin-subview-audit" class="hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs text-slate-300 font-mono">
+                <thead class="bg-[#0A0E14] text-slate-400 text-[11px] uppercase border-b border-white/10">
+                  <tr>
+                    <th class="py-2.5 px-3">Timestamp</th>
+                    <th class="py-2.5 px-3">Action</th>
+                    <th class="py-2.5 px-3">Entity Type</th>
+                    <th class="py-2.5 px-3">Actor</th>
+                    <th class="py-2.5 px-3">Status Change</th>
+                    <th class="py-2.5 px-3">Metadata</th>
+                  </tr>
+                </thead>
+                <tbody id="admin-audit-tbody" class="divide-y divide-white/5 font-mono">
+                  <!-- Injected via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= VIEW 6: PUBLIC QR VERIFY ================= -->
+      <section id="view-verify" class="view-panel hidden space-y-6">
+        <div class="max-w-3xl mx-auto space-y-6">
+          <div class="text-center">
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-bold bg-[#00F090]/10 text-[#00F090] border border-[#00F090]/30 mb-2">
+              <i class="fa-solid fa-shield-halved"></i> IMMUTABLE PUBLIC REGISTRY
+            </span>
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-white font-mono">Digital Handover Verification</h1>
+            <p class="text-slate-400 text-xs mt-1">Verify cryptographically recorded custody handovers against platform audit records.</p>
+          </div>
+
+          <div class="sanchay-card p-3 flex gap-3 font-mono">
+            <input type="text" id="verify-token-input" placeholder="Paste cryptographic public token from QR code..." class="flex-grow p-3 text-xs bg-[#0A0E14] text-white border border-white/10 rounded-xl focus:ring-1 focus:ring-[#00F090] focus:outline-none">
+            <button onclick="app.executePublicVerify()" class="px-5 py-3 btn-emerald text-xs font-bold font-mono transition">
+              VERIFY TOKEN
+            </button>
+          </div>
+
+          <div id="verify-result-container">
+            <!-- Injected via JS -->
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ================= MODALS ================= -->
+
+  <!-- 1. Auth Modal -->
   <div id="modal-auth" class="fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop hidden">
-    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl relative border border-slate-100">
-      <button onclick="app.closeModal('modal-auth')" class="absolute top-5 right-5 text-slate-400 hover:text-slate-600">
+    <div class="sanchay-card rounded-3xl max-w-md w-full p-6 relative border border-white/20 shadow-2xl">
+      <button onclick="app.closeModal('modal-auth')" class="absolute top-5 right-5 text-slate-400 hover:text-white">
         <i class="fa-solid fa-xmark text-lg"></i>
       </button>
 
       <div class="text-center mb-6">
-        <div class="w-12 h-12 rounded-2xl bg-teal-50 text-teal-700 flex items-center justify-center text-xl mx-auto mb-3">
-          <i class="fa-solid fa-recycle"></i>
+        <div class="w-10 h-10 rounded-xl bg-[#00F090]/10 text-[#00F090] border border-[#00F090]/30 flex items-center justify-center text-lg mx-auto mb-2.5">
+          <i class="fa-solid fa-bolt"></i>
         </div>
-        <h3 id="auth-modal-title" class="text-xl font-bold text-slate-900">Sign in to Sanchay</h3>
-        <p id="auth-modal-subtitle" class="text-xs text-slate-500">Access your role dashboard and transactions</p>
+        <h3 id="auth-modal-title" class="text-lg font-bold text-white font-mono">Sign in to Sanchay</h3>
+        <p id="auth-modal-subtitle" class="text-xs text-slate-400 mt-0.5">Access your role workspace and transactions</p>
       </div>
 
       <!-- Login Form -->
-      <form id="form-login" onsubmit="app.handleLoginSubmit(event)" class="space-y-4">
+      <form id="form-login" onsubmit="app.handleLoginSubmit(event)" class="space-y-4 font-mono text-xs">
         <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1">Email Address</label>
-          <input type="email" id="login-email" required class="w-full p-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:outline-none" placeholder="name@domain.com">
+          <label class="block text-slate-300 mb-1">EMAIL ADDRESS</label>
+          <input type="email" id="login-email" required class="w-full p-2.5 bg-[#0A0E14] text-white border border-white/10 rounded-xl focus:ring-1 focus:ring-[#00F090] focus:outline-none" placeholder="name@domain.com">
         </div>
         <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1">Password</label>
-          <input type="password" id="login-password" required class="w-full p-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:outline-none" placeholder="••••••••">
+          <label class="block text-slate-300 mb-1">PASSWORD</label>
+          <input type="password" id="login-password" required class="w-full p-2.5 bg-[#0A0E14] text-white border border-white/10 rounded-xl focus:ring-1 focus:ring-[#00F090] focus:outline-none" placeholder="••••••••">
         </div>
-        <button type="submit" class="w-full py-3 rounded-xl bg-brand-700 hover:bg-brand-800 text-white font-bold text-sm shadow-md shadow-brand-700/20 transition">
-          Sign In
+        <button type="submit" class="w-full py-3 btn-emerald text-xs font-bold transition">
+          AUTHENTICATE & ENTER
         </button>
-        <p class="text-center text-xs text-slate-500 pt-2">
-          Don't have an account? <a href="#" onclick="app.switchAuthMode('register')" class="text-brand-700 font-bold hover:underline">Register now</a>
+        <p class="text-center text-slate-400 pt-2">
+          New user? <a href="#" onclick="app.switchAuthMode('register')" class="text-[#00F090] font-bold hover:underline">Register account</a>
         </p>
       </form>
 
       <!-- Register Form -->
-      <form id="form-register" onsubmit="app.handleRegisterSubmit(event)" class="space-y-3 hidden">
+      <form id="form-register" onsubmit="app.handleRegisterSubmit(event)" class="space-y-3 font-mono text-xs hidden">
         <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1">Full Name</label>
-          <input type="text" id="reg-name" required class="w-full p-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:outline-none" placeholder="Ramesh Kumar">
+          <label class="block text-slate-300 mb-1">FULL NAME</label>
+          <input type="text" id="reg-name" required class="w-full p-2 bg-[#0A0E14] text-white border border-white/10 rounded-xl focus:ring-1 focus:ring-[#00F090] focus:outline-none" placeholder="Ramesh Kumar">
         </div>
         <div class="grid grid-cols-2 gap-2">
           <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">Email</label>
-            <input type="email" id="reg-email" required class="w-full p-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:outline-none" placeholder="ramesh@scrap.in">
+            <label class="block text-slate-300 mb-1">EMAIL</label>
+            <input type="email" id="reg-email" required class="w-full p-2 bg-[#0A0E14] text-white border border-white/10 rounded-xl focus:ring-1 focus:ring-[#00F090] focus:outline-none" placeholder="ramesh@scrap.in">
           </div>
           <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">Phone</label>
-            <input type="text" id="reg-phone" required class="w-full p-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:outline-none" placeholder="+919800000000">
+            <label class="block text-slate-300 mb-1">PHONE</label>
+            <input type="text" id="reg-phone" required class="w-full p-2 bg-[#0A0E14] text-white border border-white/10 rounded-xl focus:ring-1 focus:ring-[#00F090] focus:outline-none" placeholder="+919800000000">
           </div>
         </div>
         <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1">Password</label>
-          <input type="password" id="reg-password" required minlength="6" class="w-full p-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:outline-none" placeholder="At least 6 characters">
+          <label class="block text-slate-300 mb-1">PASSWORD</label>
+          <input type="password" id="reg-password" required minlength="6" class="w-full p-2 bg-[#0A0E14] text-white border border-white/10 rounded-xl focus:ring-1 focus:ring-[#00F090] focus:outline-none" placeholder="At least 6 characters">
         </div>
         <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1">Register As</label>
-          <select id="reg-role" onchange="app.toggleRecyclerFields(this.value)" class="w-full p-2 text-sm bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:outline-none">
+          <label class="block text-slate-300 mb-1">REGISTER AS</label>
+          <select id="reg-role" onchange="app.toggleRecyclerFields(this.value)" class="w-full p-2 bg-[#0A0E14] text-white border border-white/10 rounded-xl focus:ring-1 focus:ring-[#00F090] focus:outline-none">
             <option value="COLLECTOR">Informal Collector (Kabadiwala / Aggregator)</option>
             <option value="RECYCLER">Authorized E-Waste Recycler</option>
             <option value="BRAND">Electronics Brand / OEM</option>
@@ -732,53 +807,52 @@
         </div>
         <div class="grid grid-cols-2 gap-2">
           <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">City</label>
-            <input type="text" id="reg-city" required class="w-full p-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:outline-none" placeholder="Mumbai">
+            <label class="block text-slate-300 mb-1">CITY</label>
+            <input type="text" id="reg-city" required class="w-full p-2 bg-[#0A0E14] text-white border border-white/10 rounded-xl focus:ring-1 focus:ring-[#00F090] focus:outline-none" placeholder="Mumbai">
           </div>
           <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">State</label>
-            <input type="text" id="reg-state" required class="w-full p-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:outline-none" placeholder="Maharashtra">
+            <label class="block text-slate-300 mb-1">STATE</label>
+            <input type="text" id="reg-state" required class="w-full p-2 bg-[#0A0E14] text-white border border-white/10 rounded-xl focus:ring-1 focus:ring-[#00F090] focus:outline-none" placeholder="Maharashtra">
           </div>
         </div>
 
-        <!-- Optional Recycler Fields -->
-        <div id="reg-recycler-extra" class="hidden p-3 bg-teal-50 rounded-xl border border-teal-200 space-y-2">
+        <div id="reg-recycler-extra" class="hidden p-3 bg-[#0A0E14] rounded-xl border border-[#00F090]/30 space-y-2">
           <div>
-            <label class="block text-[11px] font-bold text-teal-900 mb-1">Recycling Facility / Company Name</label>
-            <input type="text" id="reg-company" class="w-full p-2 text-xs border border-teal-300 rounded-lg bg-white" placeholder="GreenCycle Facility Pvt Ltd">
+            <label class="block text-[10px] text-[#00F090] mb-1">FACILITY / COMPANY NAME</label>
+            <input type="text" id="reg-company" class="w-full p-2 text-xs border border-white/10 rounded-lg bg-[#0F141C] text-white" placeholder="GreenCycle Facility Pvt Ltd">
           </div>
           <div>
-            <label class="block text-[11px] font-bold text-teal-900 mb-1">Registration / State Pollution Control Board Number</label>
-            <input type="text" id="reg-regnumber" class="w-full p-2 text-xs border border-teal-300 rounded-lg bg-white" placeholder="REG-MH-2026-XXXX">
+            <label class="block text-[10px] text-[#00F090] mb-1">SPCB REGISTRATION NUMBER</label>
+            <input type="text" id="reg-regnumber" class="w-full p-2 text-xs border border-white/10 rounded-lg bg-[#0F141C] text-white" placeholder="REG-MH-2026-XXXX">
           </div>
         </div>
 
-        <button type="submit" class="w-full py-3 rounded-xl bg-brand-700 hover:bg-brand-800 text-white font-bold text-sm shadow-md shadow-brand-700/20 transition">
-          Create Account
+        <button type="submit" class="w-full py-3 btn-emerald text-xs font-bold transition">
+          CREATE ACCOUNT
         </button>
-        <p class="text-center text-xs text-slate-500 pt-1">
-          Already registered? <a href="#" onclick="app.switchAuthMode('login')" class="text-brand-700 font-bold hover:underline">Sign in</a>
+        <p class="text-center text-slate-400 pt-1">
+          Already registered? <a href="#" onclick="app.switchAuthMode('login')" class="text-[#00F090] font-bold hover:underline">Sign in</a>
         </p>
       </form>
     </div>
   </div>
 
-  <!-- Create Listing Modal -->
+  <!-- 2. Create Listing Modal -->
   <div id="modal-create-listing" class="fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop hidden">
-    <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl relative border border-slate-100">
-      <button onclick="app.closeModal('modal-create-listing')" class="absolute top-5 right-5 text-slate-400 hover:text-slate-600">
+    <div class="sanchay-card rounded-3xl max-w-lg w-full p-6 relative border border-white/20 shadow-2xl">
+      <button onclick="app.closeModal('modal-create-listing')" class="absolute top-5 right-5 text-slate-400 hover:text-white">
         <i class="fa-solid fa-xmark text-lg"></i>
       </button>
 
-      <h3 class="text-xl font-bold text-slate-900 mb-1 flex items-center gap-2">
-        <i class="fa-solid fa-plus-circle text-brand-700"></i> New Electronic Waste Listing
+      <h3 class="text-lg font-bold text-white font-mono mb-1 flex items-center gap-2">
+        <i class="fa-solid fa-bolt text-[#00F090]"></i> NEW ELECTRONIC WASTE LISTING
       </h3>
-      <p class="text-xs text-slate-500 mb-4">List segregated e-waste for authorized recyclers to discover and purchase.</p>
+      <p class="text-xs text-slate-400 mb-4">Post segregated materials for authorized recyclers to discover and purchase.</p>
 
-      <form id="form-create-listing" onsubmit="app.handleCreateListingSubmit(event)" class="space-y-3">
+      <form id="form-create-listing" onsubmit="app.handleCreateListingSubmit(event)" class="space-y-3 font-mono text-xs">
         <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1">Waste Category</label>
-          <select id="listing-category" required class="w-full p-2.5 text-sm bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:outline-none">
+          <label class="block text-slate-300 mb-1">WASTE CATEGORY</label>
+          <select id="listing-category" required class="w-full p-2.5 bg-[#0A0E14] text-white border border-white/10 rounded-xl focus:ring-1 focus:ring-[#00F090] focus:outline-none">
             <option value="CIRCUIT_BOARDS_PCBS">Circuit boards / PCBs</option>
             <option value="MOBILE_PHONES">Mobile phones</option>
             <option value="LAPTOPS">Laptops</option>
@@ -792,188 +866,174 @@
 
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">Est. Weight (kg)</label>
-            <input type="number" step="0.1" min="0.1" id="listing-weight" required class="w-full p-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:outline-none" placeholder="e.g. 15.5">
+            <label class="block text-slate-300 mb-1">EST. WEIGHT (KG)</label>
+            <input type="number" step="0.1" min="0.1" id="listing-weight" required class="w-full p-2.5 bg-[#0A0E14] text-white border border-white/10 rounded-xl focus:ring-1 focus:ring-[#00F090] focus:outline-none" placeholder="e.g. 15.5">
           </div>
           <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">Asking Price (₹/kg)</label>
-            <input type="number" step="0.5" min="1" id="listing-price" required class="w-full p-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:outline-none" placeholder="e.g. 120">
+            <label class="block text-slate-300 mb-1">ASKING PRICE (₹/KG)</label>
+            <input type="number" step="0.5" min="1" id="listing-price" required class="w-full p-2.5 bg-[#0A0E14] text-white border border-white/10 rounded-xl focus:ring-1 focus:ring-[#00F090] focus:outline-none" placeholder="e.g. 120">
           </div>
         </div>
 
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">City</label>
-            <input type="text" id="listing-city" required class="w-full p-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:outline-none" placeholder="Mumbai">
+            <label class="block text-slate-300 mb-1">CITY</label>
+            <input type="text" id="listing-city" required class="w-full p-2.5 bg-[#0A0E14] text-white border border-white/10 rounded-xl focus:ring-1 focus:ring-[#00F090] focus:outline-none" placeholder="Mumbai">
           </div>
           <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">State</label>
-            <input type="text" id="listing-state" required class="w-full p-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:outline-none" placeholder="Maharashtra">
+            <label class="block text-slate-300 mb-1">STATE</label>
+            <input type="text" id="listing-state" required class="w-full p-2.5 bg-[#0A0E14] text-white border border-white/10 rounded-xl focus:ring-1 focus:ring-[#00F090] focus:outline-none" placeholder="Maharashtra">
           </div>
         </div>
 
         <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1">Pickup Address</label>
-          <input type="text" id="listing-address" required class="w-full p-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:outline-none" placeholder="Shop/Gala number, Street, Landmark">
+          <label class="block text-slate-300 mb-1">PICKUP ADDRESS</label>
+          <input type="text" id="listing-address" required class="w-full p-2.5 bg-[#0A0E14] text-white border border-white/10 rounded-xl focus:ring-1 focus:ring-[#00F090] focus:outline-none" placeholder="Shop/Gala number, Street, Landmark">
         </div>
 
         <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1">Material Description (Optional)</label>
-          <textarea id="listing-desc" rows="2" class="w-full p-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:outline-none" placeholder="Grade details, sorting condition, components removed..."></textarea>
+          <label class="block text-slate-300 mb-1">DESCRIPTION (OPTIONAL)</label>
+          <textarea id="listing-desc" rows="2" class="w-full p-2 bg-[#0A0E14] text-white border border-white/10 rounded-xl focus:ring-1 focus:ring-[#00F090] focus:outline-none" placeholder="Grade details, sorting condition, component specifications..."></textarea>
         </div>
 
-        <button type="submit" class="w-full py-3 rounded-xl bg-brand-700 hover:bg-brand-800 text-white font-bold text-sm shadow-md shadow-brand-700/20 transition">
-          Publish Listing to Marketplace
+        <button type="submit" class="w-full py-3 btn-emerald text-xs font-bold transition">
+          PUBLISH TO LIVE MARKETPLACE
         </button>
       </form>
     </div>
   </div>
 
-  <!-- Accept Listing Modal -->
+  <!-- 3. Accept Listing Modal -->
   <div id="modal-accept-listing" class="fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop hidden">
-    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl relative border border-slate-100">
-      <button onclick="app.closeModal('modal-accept-listing')" class="absolute top-5 right-5 text-slate-400 hover:text-slate-600">
+    <div class="sanchay-card rounded-3xl max-w-md w-full p-6 relative border border-white/20 shadow-2xl">
+      <button onclick="app.closeModal('modal-accept-listing')" class="absolute top-5 right-5 text-slate-400 hover:text-white">
         <i class="fa-solid fa-xmark text-lg"></i>
       </button>
 
-      <h3 class="text-xl font-bold text-slate-900 mb-2">Accept E-Waste Batch</h3>
-      <p class="text-xs text-slate-500 mb-4">Accepting this listing reserves the batch exclusively for your recycling facility.</p>
+      <h3 class="text-lg font-bold text-white font-mono mb-1">RESERVE E-WASTE BATCH</h3>
+      <p class="text-xs text-slate-400 mb-4">Accepting locks the batch exclusively for pickup by your facility.</p>
 
-      <div id="accept-listing-summary" class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 mb-4 text-xs space-y-1">
+      <div id="accept-listing-summary" class="bg-[#0A0E14] p-3 rounded-xl border border-white/10 mb-4 text-xs font-mono space-y-1">
         <!-- Injected via JS -->
       </div>
 
-      <form id="form-accept-listing" onsubmit="app.handleAcceptListingSubmit(event)" class="space-y-4">
+      <form id="form-accept-listing" onsubmit="app.handleAcceptListingSubmit(event)" class="space-y-4 font-mono text-xs">
         <input type="hidden" id="accept-listing-id">
         <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1">Agreed Price Per Kilogram (₹/kg)</label>
-          <input type="number" step="0.5" min="1" id="accept-agreed-price" required class="w-full p-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:outline-none">
+          <label class="block text-slate-300 mb-1">AGREED PRICE PER KILOGRAM (₹/KG)</label>
+          <input type="number" step="0.5" min="1" id="accept-agreed-price" required class="w-full p-2.5 bg-[#0A0E14] text-white border border-white/10 rounded-xl focus:ring-1 focus:ring-[#00F090] focus:outline-none">
         </div>
-        <button type="submit" class="w-full py-3 rounded-xl bg-teal-700 hover:bg-teal-800 text-white font-bold text-sm shadow-md shadow-teal-700/20 transition">
-          Confirm & Reserve Batch
+        <button type="submit" class="w-full py-3 btn-emerald text-xs font-bold transition">
+          CONFIRM & LOCK RESERVATION
         </button>
       </form>
     </div>
   </div>
 
-  <!-- Record Weight Modal -->
+  <!-- 4. Record Weight Modal -->
   <div id="modal-record-weight" class="fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop hidden">
-    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl relative border border-slate-100">
-      <button onclick="app.closeModal('modal-record-weight')" class="absolute top-5 right-5 text-slate-400 hover:text-slate-600">
+    <div class="sanchay-card rounded-3xl max-w-md w-full p-6 relative border border-white/20 shadow-2xl">
+      <button onclick="app.closeModal('modal-record-weight')" class="absolute top-5 right-5 text-slate-400 hover:text-white">
         <i class="fa-solid fa-xmark text-lg"></i>
       </button>
 
-      <h3 class="text-xl font-bold text-slate-900 mb-1">Record Measured Scale Weight</h3>
-      <p class="text-xs text-slate-500 mb-4">Enter actual physical weight verified on calibrated scales at facility receipt.</p>
+      <h3 class="text-lg font-bold text-white font-mono mb-1">RECORD MEASURED SCALE WEIGHT</h3>
+      <p class="text-xs text-slate-400 mb-4">Enter calibrated physical weight verified at facility intake.</p>
 
-      <form id="form-record-weight" onsubmit="app.handleRecordWeightSubmit(event)" class="space-y-4">
+      <form id="form-record-weight" onsubmit="app.handleRecordWeightSubmit(event)" class="space-y-4 font-mono text-xs">
         <input type="hidden" id="record-weight-tx-id">
         <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1">Actual Measured Weight (kg)</label>
-          <input type="number" step="0.01" min="0.01" id="record-actual-weight" required class="w-full p-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:outline-none" placeholder="e.g. 8.25">
+          <label class="block text-slate-300 mb-1">ACTUAL WEIGHT (KG)</label>
+          <input type="number" step="0.01" min="0.01" id="record-actual-weight" required class="w-full p-2.5 bg-[#0A0E14] text-white border border-white/10 rounded-xl focus:ring-1 focus:ring-[#00F090] focus:outline-none" placeholder="e.g. 8.25">
         </div>
-        <p class="text-[11px] text-slate-500 italic">Total transaction value and platform facilitation fee (₹2/kg) will automatically recalculate.</p>
-        <button type="submit" class="w-full py-3 rounded-xl bg-teal-700 hover:bg-teal-800 text-white font-bold text-sm transition">
-          Save Verified Weight
+        <button type="submit" class="w-full py-3 btn-emerald text-xs font-bold transition">
+          SAVE VERIFIED WEIGHT
         </button>
       </form>
     </div>
   </div>
 
-  <!-- Evidence Attachment Modal -->
+  <!-- 5. Evidence Modal -->
   <div id="modal-evidence" class="fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop hidden">
-    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl relative border border-slate-100">
-      <button onclick="app.closeModal('modal-evidence')" class="absolute top-5 right-5 text-slate-400 hover:text-slate-600">
+    <div class="sanchay-card rounded-3xl max-w-md w-full p-6 relative border border-white/20 shadow-2xl">
+      <button onclick="app.closeModal('modal-evidence')" class="absolute top-5 right-5 text-slate-400 hover:text-white">
         <i class="fa-solid fa-xmark text-lg"></i>
       </button>
 
-      <h3 class="text-xl font-bold text-slate-900 mb-1">Attach Handover Proof Evidence</h3>
-      <p class="text-xs text-slate-500 mb-4">Attach scale readout tickets or truck loading photos for digital manifest auditability.</p>
+      <h3 class="text-lg font-bold text-white font-mono mb-1">ATTACH HANDOVER EVIDENCE</h3>
+      <p class="text-xs text-slate-400 mb-4">Link scale tickets or loading photos for cryptographic manifest auditability.</p>
 
-      <form id="form-evidence" onsubmit="app.handleEvidenceSubmit(event)" class="space-y-4">
+      <form id="form-evidence" onsubmit="app.handleEvidenceSubmit(event)" class="space-y-4 font-mono text-xs">
         <input type="hidden" id="evidence-tx-id">
         <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1">Upload Evidence Image / Slip</label>
-          <input type="file" id="evidence-file" accept="image/*,application/pdf" class="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100">
+          <label class="block text-slate-300 mb-1">EVIDENCE IMAGE / SLIP</label>
+          <input type="file" id="evidence-file" accept="image/*,application/pdf" class="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-mono file:bg-[#161D27] file:text-[#00F090] hover:file:bg-[#1F2937]">
         </div>
         <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1">Evidence Notes</label>
-          <input type="text" id="evidence-notes" placeholder="e.g. Calibrated floor scale printout #491" class="w-full p-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:outline-none">
+          <label class="block text-slate-300 mb-1">EVIDENCE NOTES</label>
+          <input type="text" id="evidence-notes" placeholder="e.g. Calibrated floor scale ticket #491" class="w-full p-2.5 bg-[#0A0E14] text-white border border-white/10 rounded-xl focus:ring-1 focus:ring-[#00F090] focus:outline-none">
         </div>
-        <button type="submit" class="w-full py-3 rounded-xl bg-teal-700 hover:bg-teal-800 text-white font-bold text-sm transition">
-          Upload & Link Evidence
+        <button type="submit" class="w-full py-3 btn-emerald text-xs font-bold transition">
+          UPLOAD & ATTACH EVIDENCE
         </button>
       </form>
     </div>
   </div>
 
-  <!-- QR Code Preview Modal -->
+  <!-- 6. QR Code Preview Modal -->
   <div id="modal-qr" class="fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop hidden">
-    <div class="bg-white rounded-3xl max-w-sm w-full p-6 text-center shadow-2xl relative border border-slate-100">
-      <button onclick="app.closeModal('modal-qr')" class="absolute top-5 right-5 text-slate-400 hover:text-slate-600">
+    <div class="sanchay-card rounded-3xl max-w-sm w-full p-6 text-center relative border border-white/20 shadow-2xl">
+      <button onclick="app.closeModal('modal-qr')" class="absolute top-5 right-5 text-slate-400 hover:text-white">
         <i class="fa-solid fa-xmark text-lg"></i>
       </button>
 
-      <h3 class="text-lg font-bold text-slate-900 mb-1">Verification QR Code</h3>
-      <p id="qr-modal-manifest-num" class="text-xs font-mono font-bold text-brand-700 mb-4">SAN-2026-000001</p>
+      <h3 class="text-base font-bold text-white font-mono mb-0.5">VERIFICATION QR CODE</h3>
+      <p id="qr-modal-manifest-num" class="text-xs font-mono font-bold text-[#00F090] mb-4">SAN-2026-000001</p>
 
-      <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 inline-block mb-4">
+      <div class="bg-white p-4 rounded-2xl inline-block mb-4 shadow-[0_0_30px_rgba(0,240,144,0.25)]">
         <img id="qr-modal-image" src="" alt="Verification QR Code" class="w-48 h-48 mx-auto object-contain">
       </div>
 
-      <p class="text-xs text-slate-500 leading-relaxed mb-4">Scan with any smartphone camera to open the immutable public chain-of-custody verification page.</p>
+      <p class="text-[11px] text-slate-400 leading-relaxed mb-4 font-mono">Scan with any smartphone camera to inspect the immutable public chain-of-custody verification page.</p>
 
-      <button id="qr-modal-verify-btn" class="w-full py-2.5 rounded-xl bg-slate-900 text-white font-bold text-xs hover:bg-slate-800 transition">
-        Open Public Verification Page
+      <button id="qr-modal-verify-btn" class="w-full py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-[#00F090] font-mono font-bold text-xs transition">
+        OPEN VERIFICATION RECORD
       </button>
     </div>
   </div>
 
-  <!-- Admin Associate Brand Manifest Modal -->
+  <!-- 7. Associate Brand Modal -->
   <div id="modal-associate-brand" class="fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop hidden">
-    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl relative border border-slate-100">
-      <button onclick="app.closeModal('modal-associate-brand')" class="absolute top-5 right-5 text-slate-400 hover:text-slate-600">
+    <div class="sanchay-card rounded-3xl max-w-md w-full p-6 relative border border-white/20 shadow-2xl">
+      <button onclick="app.closeModal('modal-associate-brand')" class="absolute top-5 right-5 text-slate-400 hover:text-white">
         <i class="fa-solid fa-xmark text-lg"></i>
       </button>
 
-      <h3 class="text-xl font-bold text-slate-900 mb-1">Map Manifest to Brand Account</h3>
-      <p class="text-xs text-slate-500 mb-4">Grant access for an electronics brand to view this verified handover record on their reporting dashboard.</p>
+      <h3 class="text-lg font-bold text-white font-mono mb-1">GRANT BRAND ACCESS</h3>
+      <p class="text-xs text-slate-400 mb-4">Permit an electronics brand to review this verified handover manifest on their reporting dashboard.</p>
 
-      <form id="form-associate-brand" onsubmit="app.handleAssociateBrandSubmit(event)" class="space-y-4">
+      <form id="form-associate-brand" onsubmit="app.handleAssociateBrandSubmit(event)" class="space-y-4 font-mono text-xs">
         <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1">Select Brand</label>
-          <select id="associate-brand-select" required class="w-full p-2.5 text-sm bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:outline-none">
+          <label class="block text-slate-300 mb-1">SELECT BRAND</label>
+          <select id="associate-brand-select" required class="w-full p-2.5 bg-[#0A0E14] text-white border border-white/10 rounded-xl focus:ring-1 focus:ring-[#00F090] focus:outline-none">
             <!-- Injected via JS -->
           </select>
         </div>
         <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1">Select Manifest</label>
-          <select id="associate-manifest-select" required class="w-full p-2.5 text-sm bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:outline-none">
+          <label class="block text-slate-300 mb-1">SELECT MANIFEST</label>
+          <select id="associate-manifest-select" required class="w-full p-2.5 bg-[#0A0E14] text-white border border-white/10 rounded-xl focus:ring-1 focus:ring-[#00F090] focus:outline-none">
             <!-- Injected via JS -->
           </select>
         </div>
-        <button type="submit" class="w-full py-3 rounded-xl bg-rose-700 hover:bg-rose-800 text-white font-bold text-sm transition">
-          Grant Brand Access
+        <button type="submit" class="w-full py-3 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold transition">
+          GRANT BRAND ACCESS
         </button>
       </form>
     </div>
   </div>
-
-  <!-- Footer -->
-  <footer class="bg-white border-t border-slate-200 py-6 mt-auto">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-slate-500">
-      <div class="flex items-center gap-2">
-        <span class="font-bold text-slate-700">Project Sanchay</span> — Digital E-Waste Bridge Connecting India's Informal Waste Economy to Formal EPR Markets
-      </div>
-      <div>
-        Built with NestJS, PostgreSQL & Prisma • Verified Chain of Custody MVP
-      </div>
-    </div>
-  </footer>
 
   <!-- Scripts -->
   <script src="/js/api.js"></script>
   <script src="/js/app.js"></script>
 </body>
 </html>
-

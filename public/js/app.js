@@ -123,6 +123,17 @@ class App {
     const nav = document.getElementById('nav-links');
     const role = window.api.getUserRole();
 
+    ['collector', 'recycler', 'brand', 'admin'].forEach((r) => {
+      const btn = document.getElementById('role-btn-' + r);
+      if (!btn) return;
+      const isActive = role && role.toLowerCase() === r;
+      if (isActive) {
+        btn.className = 'px-3 py-1 rounded-lg bg-white/10 text-white font-bold border border-white/20 transition flex items-center gap-1.5 shadow-[0_0_12px_rgba(255,255,255,0.1)]';
+      } else {
+        btn.className = 'px-3 py-1 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition flex items-center gap-1.5';
+      }
+    });
+
     let html = `
       <button onclick="app.navigate('landing')" class="px-3 py-1.5 rounded-lg text-slate-600 hover:text-brand-700 hover:bg-slate-100 transition">
         Overview
@@ -172,6 +183,23 @@ class App {
 
     const target = document.getElementById(`view-${viewId}`);
     if (target) target.classList.remove('hidden');
+
+    // Update active sidebar item
+    document.querySelectorAll('.sidebar-nav-item').forEach((el) => el.classList.remove('active'));
+    const activeNav = document.getElementById(`sidebar-nav-${viewId}`);
+    if (activeNav) activeNav.classList.add('active');
+
+    // Update topbar breadcrumb
+    const breadcrumb = document.getElementById('topbar-breadcrumb');
+    const titles = {
+      landing: 'Platform Overview & Telemetry',
+      collector: 'Collector // Inventory & Scrap Listings',
+      recycler: 'Recycler // Marketplace & Facility Handovers',
+      brand: 'Brand // ESG Recovery Intelligence',
+      admin: 'Admin // Governance & Immutable Ledger',
+      verify: 'Public // Chain of Custody Registry'
+    };
+    if (breadcrumb) breadcrumb.textContent = titles[viewId] || 'Workspace';
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
