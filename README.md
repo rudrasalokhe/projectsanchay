@@ -17,6 +17,7 @@ Sanchay is an asset-light digital intermediary connecting informal electronic wa
 
 ## 2. Technology Stack
 
+- **Frontend:** Responsive Single-Page Application (HTML5, Tailwind CSS, Vanilla Modern ES6+ JavaScript, FontAwesome 6)
 - **Backend Framework:** NestJS 10 (TypeScript)
 - **Database:** PostgreSQL 16 / 18
 - **ORM & Migrations:** Prisma ORM 5.22
@@ -34,32 +35,39 @@ Sanchay is an asset-light digital intermediary connecting informal electronic wa
 ## 3. Architecture & Project Structure
 
 ```
-src/
-├── main.ts                    # Bootstrap: Swagger, Helmet, CORS, ValidationPipe
-├── app.module.ts              # Root AppModule & Global Providers
-├── config/
-│   └── configuration.ts       # Typed environment configuration
+├── public/                    # Production Frontend SPA (Served directly by NestJS)
+│   ├── index.html             # Single-Page Application Shell (Tailwind CSS, Icons)
+│   ├── css/
+│   │   └── style.css          # Design system, status badges, progress bars
+│   └── js/
+│       ├── api.js             # Robust API client with auto-refresh & error handlers
+│       └── app.js             # Role routing, state management, modals, and charts
+├── src/
+│   ├── main.ts                # Bootstrap: Static assets, Swagger, Helmet, CORS
+│   ├── app.module.ts          # Root AppModule & Global Providers
+│   ├── config/                # Typed environment configuration
+│   ├── prisma/                # Global Prisma database service
+│   ├── common/                # @Roles, @CurrentUser, Guards, Filters, Interceptors
+│   ├── auth/                  # Registration, Login, Token Rotation, Profile
+│   ├── users/                 # Profile updates and password management
+│   ├── listings/              # Waste listing CRUD & soft cancellation
+│   ├── marketplace/           # Filtered public/recycler marketplace
+│   ├── transactions/          # Concurrency-safe acceptance, weight & confirmations
+│   ├── manifests/             # Digital manifest, QR code, and PDFKit generator
+│   ├── collectors/            # Collector KPI dashboard & earnings
+│   ├── recyclers/             # Recycler verification profile & dashboard
+│   ├── brands/                # Brand sustainability metrics, charts & CSV export
+│   ├── admin/                 # Recycler review, manifest association, audit logs
+│   ├── audit-logs/            # Append-only audit logger service
+│   └── uploads/               # Secure photo, document & evidence uploads
 ├── prisma/
-│   ├── prisma.service.ts      # PrismaClient database connection
-│   └── prisma.module.ts       # Global Prisma module
-├── common/
-│   ├── decorators/            # @Public(), @Roles(), @CurrentUser()
-│   ├── guards/                # JwtAuthGuard, RolesGuard
-│   ├── filters/               # AllExceptionsFilter (centralized error format)
-│   ├── interceptors/          # TransformInterceptor (standard API response)
-│   └── dto/                   # PaginationDto
-├── auth/                      # Registration, Login, Token Rotation, Profile
-├── users/                     # Profile updates and password management
-├── listings/                  # Waste listing CRUD & soft cancellation
-├── marketplace/               # Filtered public/recycler marketplace
-├── transactions/              # Concurrency-safe acceptance, weight & confirmations
-├── manifests/                 # Digital manifest, QR code, and PDF generator
-├── collectors/                # Collector KPI dashboard & earnings
-├── recyclers/                 # Recycler verification profile & dashboard
-├── brands/                    # Brand sustainability metrics, charts & CSV export
-├── admin/                     # Recycler review, manifest association, audit logs
-├── audit-logs/                # Append-only audit logger service
-└── uploads/                   # Secure photo, document & evidence uploads
+│   ├── schema.prisma          # Complete database schema with Prisma Decimals
+│   ├── migrations/            # Applied SQL migrations (20261103123308_init)
+│   └── seed.ts                # Development demonstration seed script
+└── test/
+    ├── app.e2e-spec.ts        # 13 mandatory test suites (30 tests)
+    ├── probe-frontend.ts      # Automated frontend delivery verification script
+    └── e2e-workflow-runner.ts # 15-step live HTTP verification script
 ```
 
 ---
@@ -119,8 +127,10 @@ npm run build
 npm run start:prod
 ```
 
-API Server: `http://localhost:3000/api`  
-Swagger UI Documentation: `http://localhost:3000/api/docs`
+- **Frontend Web Application:** [`http://localhost:3000`](http://localhost:3000)
+- **REST API Endpoint:** [`http://localhost:3000/api`](http://localhost:3000/api)
+- **Interactive Swagger Documentation:** [`http://localhost:3000/api/docs`](http://localhost:3000/api/docs)
+- **Public QR Verification:** [`http://localhost:3000/verify`](http://localhost:3000/verify)
 
 ---
 

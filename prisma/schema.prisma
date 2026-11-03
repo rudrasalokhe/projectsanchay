@@ -1,0 +1,215 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  COLLECTOR
+  RECYCLER
+  BRAND
+  ADMIN
+}
+
+enum RecyclerRegistrationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum WasteCategory {
+  MOBILE_PHONES
+  LAPTOPS
+  DESKTOP_COMPUTERS
+  CIRCUIT_BOARDS_PCBS
+  BATTERIES
+  CABLES_AND_WIRES
+  ELECTRONIC_COMPONENTS
+  OTHER_ELECTRONIC_WASTE
+}
+
+enum ListingStatus {
+  AVAILABLE
+  RESERVED
+  COMPLETED
+  CANCELLED
+}
+
+enum TransactionStatus {
+  PENDING_HANDOVER
+  PARTIALLY_CONFIRMED
+  HANDOVER_VERIFIED
+  CANCELLED
+  DISPUTED
+}
+
+model User {
+  id                   String                 @id @default(uuid())
+  fullName             String
+  email                String                 @unique
+  phone                String
+  passwordHash         String
+  role                 Role
+  organizationName     String?
+  address              String?
+  city                 String
+  state                String
+  refreshTokenHash     String?
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
+
+  recyclerProfile      RecyclerProfile?
+  listings             WasteListing[]
+  collectorTransactions Transaction[]          @relation("CollectorTransactions")
+  recyclerTransactions  Transaction[]          @relation("RecyclerTransactions")
+  brandAccess          BrandManifestAccess[]  @relation("BrandAccessUser")
+  auditLogs            AuditLog[]
+
+  @@index([email])
+  @@index([role])
+}
+
+model RecyclerProfile {
+  id                     String                     @id @default(uuid())
+  userId                 String                     @unique
+  companyName            String
+  registrationNumber     String                     @unique
+  registrationDocumentUrl String?
+  registrationStatus     RecyclerRegistrationStatus @default(PENDING)
+  verifiedAt             DateTime?
+  verifiedBy             String?
+  createdAt              DateTime                   @default(now())
+  updatedAt              DateTime                   @updatedAt
+
+  user                   User                       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([registrationStatus])
+}
+
+model WasteListing {
+  id                 String         @id @default(uuid())
+  collectorId        String
+  category           WasteCategory
+  description        String?
+  estimatedWeightKg  Decimal        @db.Decimal(10, 2)
+  expectedPricePerKg Decimal        @db.Decimal(10, 2)
+  city               String
+  state              String
+  pickupAddress      String
+  latitude           Float?
+  longitude          Float?
+  photoUrls          String[]       @default([])
+  status             ListingStatus  @default(AVAILABLE)
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+
+  collector          User           @relation(fields: [collectorId], references: [id], onDelete: Restrict)
+  transactions       Transaction[]
+
+  @@index([status])
+  @@index([category])
+  @@index([city])
+  @@index([collectorId])
+}
+
+model Transaction {
+  id                   String            @id @default(uuid())
+  listingId            String
+  collectorId          String
+  recyclerId           String
+  agreedPricePerKg     Decimal           @db.Decimal(10, 2)
+  actualWeightKg       Decimal?          @db.Decimal(10, 2)
+  totalAmount          Decimal?          @db.Decimal(12, 2)
+  platformFee          Decimal?          @db.Decimal(10, 2)
+  evidenceUrls         String[]          @default([])
+  evidenceNotes        String?
+  collectorConfirmedAt DateTime?
+  recyclerConfirmedAt  DateTime?
+  status               TransactionStatus @default(PENDING_HANDOVER)
+  acceptedAt           DateTime          @default(now())
+  completedAt          DateTime?
+  cancellationReason   String?
+  disputeReason        String?
+  createdAt            DateTime          @default(now())
+  updatedAt            DateTime          @updatedAt
+
+  listing              WasteListing      @relation(fields: [listingId], references: [id], onDelete: Restrict)
+  collector            User              @relation("CollectorTransactions", fields: [collectorId], references: [id], onDelete: Restrict)
+  recycler             User              @relation("RecyclerTransactions", fields: [recyclerId], references: [id], onDelete: Restrict)
+  manifest             DigitalManifest?
+
+  @@index([status])
+  @@index([collectorId])
+  @@index([recyclerId])
+  @@index([listingId])
+}
+
+model DigitalManifest {
+  id                 String                @id @default(uuid())
+  manifestNumber     String                @unique
+  transactionId      String                @unique
+  wasteCategory      WasteCategory
+  actualWeightKg     Decimal               @db.Decimal(10, 2)
+  agreedPricePerKg   Decimal               @db.Decimal(10, 2)
+  totalAmount        Decimal               @db.Decimal(12, 2)
+  platformFee        Decimal               @db.Decimal(10, 2)
+  handoverDate       DateTime              @default(now())
+  pickupLocation     String
+  city               String
+  state              String
+  collectorName      String
+  recyclerName       String
+  collectorOrg       String?
+  recyclerOrg        String?
+  verificationStatus String                @default("HANDOVER_VERIFIED")
+  publicToken        String                @unique
+  qrCodeDataUrl      String?               @db.Text
+  pdfPath            String?
+  disclaimer         String                @default("This document records a digital e-waste handover on the Sanchay platform. It is not a CPCB-issued EPR certificate or independent proof of completed recycling.")
+  createdAt          DateTime              @default(now())
+  updatedAt          DateTime              @updatedAt
+
+  transaction        Transaction           @relation(fields: [transactionId], references: [id], onDelete: Restrict)
+  brandAccess        BrandManifestAccess[]
+
+  @@index([manifestNumber])
+  @@index([publicToken])
+  @@index([handoverDate])
+}
+
+model BrandManifestAccess {
+  id         String          @id @default(uuid())
+  brandId    String
+  manifestId String
+  grantedBy  String
+  grantedAt  DateTime        @default(now())
+
+  brand      User            @relation("BrandAccessUser", fields: [brandId], references: [id], onDelete: Cascade)
+  manifest   DigitalManifest @relation(fields: [manifestId], references: [id], onDelete: Cascade)
+
+  @@unique([brandId, manifestId])
+  @@index([brandId])
+  @@index([manifestId])
+}
+
+model AuditLog {
+  id             String    @id @default(uuid())
+  actorId        String?
+  entityType     String
+  entityId       String
+  action         String
+  previousStatus String?
+  newStatus      String?
+  metadata       Json?
+  createdAt      DateTime  @default(now())
+
+  actor          User?     @relation(fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([entityType, entityId])
+  @@index([actorId])
+  @@index([createdAt])
+}
+
